@@ -1,0 +1,36 @@
+services:
+  tant-ellens-web:
+    build:
+      context: ./src
+      dockerfile: Dockerfile
+    container_name: tant-ellens-web
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 8080
+      DATABASE_PATH: /data/fikalista.sqlite
+    expose:
+      - "8080"
+    volumes:
+      - tant_ellens_fika_data:/data
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - fetch('http://127.0.0.1:8080/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    networks:
+      - shared_backend
+
+volumes:
+  tant_ellens_fika_data:
+    name: tant_ellens_fika_data
+
+networks:
+  shared_backend:
+    external: true
+    name: shared_backend

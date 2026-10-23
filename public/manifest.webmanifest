@@ -1,0 +1,17 @@
+{
+  "name": "Tant Ellens Fikalista",
+  "short_name": "Fikalistan",
+  "description": "Boka fika och rösta fram Chalmers godaste fikabröd.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8f4ea",
+  "theme_color": "#f8f4ea",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

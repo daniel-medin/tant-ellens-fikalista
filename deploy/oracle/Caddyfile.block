@@ -1,0 +1,4 @@
+tantellensfikalista.mrcheng.se {
+    encode zstd gzip
+    reverse_proxy tant-ellens-web:8080
+}
