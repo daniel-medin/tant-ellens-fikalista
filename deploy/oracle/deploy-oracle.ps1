@@ -128,6 +128,12 @@ fi
 if ! sudo docker exec caddy caddy reload --config /etc/caddy/Caddyfile; then
   sudo docker restart caddy
 fi
+
+health="$(sudo docker exec caddy wget -qO- "http://tant-ellens-web:8080/api/health")"
+if [ "$health" != '{"status":"ok"}' ]; then
+  printf 'App health check failed: %s\n' "$health" >&2
+  exit 1
+fi
 '@
 
     $remoteCommand = $remoteScript.
@@ -142,7 +148,12 @@ fi
 
     if (-not $SkipPublicVerify) {
         Write-Host "Checking $PublicUrl..."
-        Invoke-Native curl.exe "--fail" "--silent" "--show-error" "--location" "--max-time" "30" "$($PublicUrl.TrimEnd('/'))/api/health"
+        $HealthUrl = "$($PublicUrl.TrimEnd('/'))/api/health"
+        $Health = Invoke-RestMethod -Uri $HealthUrl -TimeoutSec 30
+        if ($Health.status -ne "ok") {
+            throw "Public health check failed: $HealthUrl"
+        }
+        Write-Host "Public HTTPS health check succeeded."
     }
 }
 finally {

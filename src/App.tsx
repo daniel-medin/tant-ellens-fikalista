@@ -263,7 +263,7 @@ function App() {
     <main className="app-shell">
       <header className="topbar">
         <a className="brand" href="#" onClick={() => setActiveView("calendar")}>
-          <img className="brand-mark" src="/fika-donut.svg" alt="" />
+          <img className="brand-mark" src="/ellen-yarn.svg" alt="Ellen som garnfigur" />
           <span className="brand-copy">
             <span className="brand-name">Tant Ellens</span>
             <span className="brand-subtitle"><img className="chalmers-mark" src="/chalmers-mark.svg" alt="Chalmers logotyp" /> FIKALISTA · CHALMERS</span>
@@ -306,7 +306,6 @@ function App() {
           <span className="art-sprinkle sprinkle-one">✦</span>
           <span className="art-sprinkle sprinkle-two">✳</span>
           <span className="art-sprinkle sprinkle-three">•</span>
-          <img src="/fika-donut.svg" alt="" />
           <img className="ellen-yarn" src="/ellen-yarn.svg" alt="Ellen som en liten garnfigur med långt brunt hår och stickad tröja" />
           <span className="art-caption">BAKAD MED<br />KÄRLEK ♡</span>
         </div>

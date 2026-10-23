@@ -1,5 +1,5 @@
-const CACHE_NAME = "tant-ellens-shell-v2";
-const APP_SHELL = ["/", "/manifest.webmanifest", "/favicon.svg", "/fika-donut.svg", "/ellen-yarn.svg", "/chalmers-mark.svg"];
+const CACHE_NAME = "tant-ellens-shell-v3";
+const APP_SHELL = ["/", "/manifest.webmanifest", "/favicon.svg", "/ellen-yarn.svg", "/chalmers-mark.svg"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)));

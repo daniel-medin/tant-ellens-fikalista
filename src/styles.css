@@ -30,7 +30,7 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
   max-width: 1240px; padding: 0 42px; margin: auto;
 }
 .brand { display: flex; align-items: center; gap: 11px; color: inherit; text-decoration: none; }
-.brand-mark { width: 47px; height: 47px; }
+.brand-mark { width: 42px; height: 59px; object-fit: contain; }
 .brand-copy { display: flex; flex-direction: column; line-height: 1; }
 .brand-name { font: 700 18px var(--serif); letter-spacing: -.4px; }
 .brand-subtitle { display: flex; align-items: center; gap: 4px; margin-top: 6px; font-size: 8px; font-weight: 700; letter-spacing: 1.1px; color: #748078; }
@@ -65,8 +65,7 @@ h1 em { color: #d96c55; font-weight: 600; }
 .hero-note { display: flex; align-items: center; gap: 8px; margin-top: 18px; color: #718078; font-size: 10px; }
 .note-icon { color: #e1a64c; font-size: 15px; }
 .hero-art { position: absolute; width: 410px; height: 300px; right: 48px; top: 17px; display: grid; place-items: center; }
-.hero-art img { position: relative; z-index: 1; width: 230px; filter: drop-shadow(0 13px 9px #a35b3a2e); transform: rotate(-12deg); }
-.hero-art .ellen-yarn { position: absolute; z-index: 2; left: 5px; bottom: 5px; width: 98px; filter: drop-shadow(0 8px 5px #57372c24); transform: rotate(-5deg); }
+.hero-art .ellen-yarn { position: absolute; z-index: 2; left: 50%; bottom: 2px; width: 145px; filter: drop-shadow(0 8px 5px #57372c24); transform: translateX(-50%) rotate(-5deg); }
 .art-sun { position: absolute; width: 236px; height: 236px; border-radius: 50%; background: #f5d58e; opacity: .56; }
 .art-sprinkle { position: absolute; color: var(--orange); font-size: 24px; }
 .sprinkle-one { top: 41px; left: 76px; transform: rotate(16deg); }
@@ -188,7 +187,7 @@ h1 em { color: #d96c55; font-weight: 600; }
 }
 @media (max-width: 700px) {
   .topbar { height: 72px; padding: 0 18px; }
-  .brand-mark { width: 40px; height: 40px; }
+  .brand-mark { width: 35px; height: 49px; }
   .brand-name { font-size: 16px; }
   .main-nav { gap: 16px; }
   .nav-link { font-size: 11px; }
@@ -198,8 +197,7 @@ h1 em { color: #d96c55; font-weight: 600; }
   h1 { font-size: 37px; }
   .hero-copy > p { max-width: 340px; }
   .hero-art { width: 230px; height: 190px; top: auto; right: 7px; bottom: 4px; }
-  .hero-art img { width: 144px; }
-  .hero-art .ellen-yarn { left: 0; bottom: 1px; width: 75px; }
+  .hero-art .ellen-yarn { bottom: 5px; width: 105px; }
   .art-sun { width: 145px; height: 145px; }
   .art-caption { right: 0; bottom: 8px; transform: scale(.8) rotate(12deg); }
   .sprinkle-one { top: 20px; left: 28px; }
@@ -225,7 +223,7 @@ h1 em { color: #d96c55; font-weight: 600; }
 }
 @media (max-width: 410px) {
   .brand { gap: 7px; }
-  .brand-mark { width: 35px; height: 35px; }
+  .brand-mark { width: 31px; height: 43px; }
   .brand-name { font-size: 14px; }
   .brand-subtitle { font-size: 7px; letter-spacing: .7px; }
   .chalmers-mark { width: 10px; height: 10px; }
