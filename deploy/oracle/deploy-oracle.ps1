@@ -128,19 +128,6 @@ fi
 if ! sudo docker exec caddy caddy reload --config /etc/caddy/Caddyfile; then
   sudo docker restart caddy
 fi
-
-health=""
-for attempt in 1 2 3 4 5 6 7 8 9 10; do
-  health="$(sudo docker exec caddy wget -qO- http://tant-ellens-web:8080/api/health || true)"
-  if [ "$health" = '{"status":"ok"}' ]; then
-    break
-  fi
-  sleep 2
-done
-if [ "$health" != '{"status":"ok"}' ]; then
-  printf 'App health check failed: %s\n' "$health" >&2
-  exit 1
-fi
 '@
 
     $remoteCommand = $remoteScript.
@@ -156,9 +143,26 @@ fi
     if (-not $SkipPublicVerify) {
         Write-Host "Checking $PublicUrl..."
         $HealthUrl = "$($PublicUrl.TrimEnd('/'))/api/health"
-        $Health = Invoke-RestMethod -Uri $HealthUrl -TimeoutSec 30
-        if ($Health.status -ne "ok") {
-            throw "Public health check failed: $HealthUrl"
+        $LastHealthError = $null
+        for ($Attempt = 1; $Attempt -le 10; $Attempt++) {
+            try {
+                $Health = Invoke-RestMethod -Uri $HealthUrl -TimeoutSec 30
+                if ($Health.status -eq "ok") {
+                    $LastHealthError = $null
+                    break
+                }
+                $LastHealthError = "Unexpected response from $HealthUrl"
+            }
+            catch {
+                $LastHealthError = $_.Exception.Message
+            }
+
+            if ($Attempt -lt 10) {
+                Start-Sleep -Seconds 2
+            }
+        }
+        if ($LastHealthError) {
+            throw "Public health check failed after 10 attempts: $LastHealthError"
         }
         Write-Host "Public HTTPS health check succeeded."
     }
