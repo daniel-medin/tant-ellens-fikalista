@@ -120,7 +120,7 @@ fi
 sudo docker compose -f "$app_dir/docker-compose.yml" up -d --build
 
 caddyfile=/opt/stacks/proxy/Caddyfile
-if ! sudo grep -Fq "$domain {" "$caddyfile"; then
+if ! sudo grep -Fq $domain $caddyfile; then
   printf '\n' | sudo tee -a "$caddyfile" >/dev/null
   sudo tee -a "$caddyfile" < "$app_dir/Caddyfile.block" >/dev/null
 fi
@@ -129,7 +129,14 @@ if ! sudo docker exec caddy caddy reload --config /etc/caddy/Caddyfile; then
   sudo docker restart caddy
 fi
 
-health="$(sudo docker exec caddy wget -qO- "http://tant-ellens-web:8080/api/health")"
+health=""
+for attempt in 1 2 3 4 5 6 7 8 9 10; do
+  health="$(sudo docker exec caddy wget -qO- http://tant-ellens-web:8080/api/health || true)"
+  if [ "$health" = '{"status":"ok"}' ]; then
+    break
+  fi
+  sleep 2
+done
 if [ "$health" != '{"status":"ok"}' ]; then
   printf 'App health check failed: %s\n' "$health" >&2
   exit 1
