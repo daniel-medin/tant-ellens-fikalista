@@ -1,6 +1,6 @@
 # Tant Ellens Fikalista
 
-En responsiv React + TypeScript + Vite-PWA för fikaanmälningar, stjärnröstning och topplista. Appen har en Express/SQLite-API så anmälningar och röster delas mellan användare. SQLite-filen ligger i en persistent Docker-volym.
+En responsiv React + TypeScript + Vite-PWA för fikaanmälningar och topplistan "Mest bjudsamma". Appen har en Express/SQLite-API så anmälningar och topplista delas mellan användare. SQLite-filen ligger i en persistent Docker-volym.
 
 ## Kom igång
 
@@ -19,4 +19,4 @@ Deployfilerna finns i `deploy/oracle`. Deployscriptet bygger och skickar en Dock
 .\deploy\oracle\deploy-oracle.ps1
 ```
 
-Standardadressen är `https://tantellensfikalista.mrcheng.se/`. DNS behöver peka på Oracle-servern. Kalendern har lokalt cacheläge för offlinevisning, men bokningar och röster blir gemensamma när servern är tillgänglig.
+Standardadressen är `https://tantellensfikalista.mrcheng.se/`. Kalendern har lokalt cacheläge för offlinevisning, men bokningar och topplista blir gemensamma när servern är tillgänglig. Topplistan räknar fikabjudningar vars datum har passerat.

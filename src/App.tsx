@@ -5,30 +5,16 @@ type Fika = {
   date: string;
   host: string;
   treat: string;
-  rating: number;
-  ratingCount?: number;
-  myRating?: number;
 };
 
 type View = "calendar" | "leaderboard";
 
-const storageKey = "tant-ellens-fikalista-v1";
+const storageKey = "tant-ellens-fikalista-v2";
 const weekdayNames = ["Mån", "Tis", "Ons", "Tor", "Fre", "Lör", "Sön"];
 const monthNames = [
   "januari", "februari", "mars", "april", "maj", "juni",
   "juli", "augusti", "september", "oktober", "november", "december",
 ];
-const sampleFikas = [
-  { offset: -18, host: "Maja", treat: "Kardemummabullar", rating: 5 },
-  { offset: -13, host: "Oskar", treat: "Kladdkaka deluxe", rating: 4 },
-  { offset: -8, host: "Fatima", treat: "Citronmarängpaj", rating: 5 },
-  { offset: -3, host: "Viktor", treat: "Chokladbollar", rating: 3 },
-  { offset: 2, host: "Linnea", treat: "Hemligt", rating: 0 },
-  { offset: 5, host: "Amir", treat: "Kanelbullar", rating: 0 },
-  { offset: 9, host: "Elsa", treat: "Morotskaka", rating: 0 },
-  { offset: 12, host: "Noah", treat: "Hemligt", rating: 0 },
-];
-
 function dateKey(date: Date): string {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -46,20 +32,9 @@ function addDays(date: Date, amount: number): Date {
   return result;
 }
 
-function createSamples(): Fika[] {
-  const today = new Date();
-  return sampleFikas.map((fika, index) => ({
-    id: `sample-${index}`,
-    date: dateKey(addDays(today, fika.offset)),
-    host: fika.host,
-    treat: fika.treat,
-    rating: fika.rating,
-  }));
-}
-
 function loadFikas(): Fika[] {
   const stored = localStorage.getItem(storageKey);
-  if (!stored) return createSamples();
+  if (!stored) return [];
 
   const parsed: unknown = JSON.parse(stored);
   if (!isFikaList(parsed)) {
@@ -78,22 +53,7 @@ function isFika(value: unknown): value is Fika {
     "id" in value && typeof value.id === "string" &&
     "date" in value && typeof value.date === "string" &&
     "host" in value && typeof value.host === "string" &&
-    "treat" in value && typeof value.treat === "string" &&
-    "rating" in value && typeof value.rating === "number" &&
-    Number.isFinite(value.rating) && value.rating >= 0 && value.rating <= 5;
-}
-
-function getOrCreateVoterId(): string {
-  try {
-    const existing = localStorage.getItem("tant-ellens-voter");
-    if (existing) return existing;
-    const created = crypto.randomUUID();
-    localStorage.setItem("tant-ellens-voter", created);
-    return created;
-  } catch (error) {
-    console.error("Kunde inte spara röstnings-ID lokalt.", error);
-    return crypto.randomUUID();
-  }
+    "treat" in value && typeof value.treat === "string";
 }
 
 async function apiRequest(url: string, init?: RequestInit): Promise<unknown> {
@@ -127,11 +87,10 @@ function App() {
       return { fikas: loadFikas(), error: "" };
     } catch (error) {
       console.error("Kunde inte läsa fikalistan från lokal lagring.", error);
-      return { fikas: createSamples(), error: "Kunde inte läsa sparad data. En exempellista visas." };
+      return { fikas: [], error: "Kunde inte läsa sparad data." };
     }
   });
   const [fikas, setFikas] = useState<Fika[]>(initialData.fikas);
-  const [voterId] = useState(getOrCreateVoterId);
   const [activeView, setActiveView] = useState<View>("calendar");
   const [visibleMonth, setVisibleMonth] = useState(() => new Date());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
@@ -153,7 +112,7 @@ function App() {
 
   useEffect(() => {
     let active = true;
-    void apiRequest(`/api/fikas?voterId=${encodeURIComponent(voterId)}`)
+    void apiRequest("/api/fikas")
       .then((data) => {
         if (!isFikaList(data)) throw new Error("Servern skickade en ogiltig fikalista.");
         if (active) {
@@ -168,7 +127,7 @@ function App() {
     return () => {
       active = false;
     };
-  }, [voterId]);
+  }, []);
 
   const upcoming = useMemo(
     () => fikas.filter((fika) => fika.date >= todayKey).sort((a, b) => a.date.localeCompare(b.date)),
@@ -176,17 +135,19 @@ function App() {
   );
 
   const leaderboard = useMemo(() => {
-    const ratings = new Map<string, { total: number; count: number }>();
-    fikas.forEach((fika) => {
-      if (!fika.rating) return;
-      const current = ratings.get(fika.host) ?? { total: 0, count: 0 };
-      ratings.set(fika.host, { total: current.total + fika.rating, count: current.count + 1 });
+    const hostedCount = new Map<string, { host: string; count: number }>();
+    fikas
+      .filter((fika) => fika.date <= todayKey)
+      .forEach((fika) => {
+        const host = fika.host.trim();
+        const key = host.toLocaleLowerCase("sv-SE");
+        const current = hostedCount.get(key);
+        hostedCount.set(key, { host: current?.host ?? host, count: (current?.count ?? 0) + 1 });
     });
-    return [...ratings.entries()]
-      .map(([host, score]) => ({ host, average: score.total / score.count, count: score.count }))
-      .sort((a, b) => b.average - a.average || b.count - a.count)
+    return [...hostedCount.values()]
+      .sort((a, b) => b.count - a.count || a.host.localeCompare(b.host, "sv"))
       .slice(0, 5);
-  }, [fikas]);
+  }, [fikas, todayKey]);
 
   const monthDays = useMemo(() => {
     const first = new Date(visibleMonth.getFullYear(), visibleMonth.getMonth(), 1);
@@ -214,9 +175,6 @@ function App() {
       date: selectedDate,
       host: hostName.trim(),
       treat: treatName.trim() || "Hemligt fika",
-      rating: 0,
-      ratingCount: 0,
-      myRating: 0,
     };
     setFikas((current) => [...current, newFika]);
     setHostName("");
@@ -233,25 +191,6 @@ function App() {
     } catch (error) {
       console.error("Kunde inte dela fikaanmälan med servern.", error);
       setApiMessage("Anmälan sparades bara på den här enheten. Försök igen när du är online.");
-    }
-  }
-
-  async function rateFika(id: string, rating: number) {
-    setFikas((current) =>
-      current.map((fika) => (fika.id === id ? { ...fika, myRating: rating, rating: fika.rating || rating } : fika)),
-    );
-    try {
-      const updated = await apiRequest(`/api/fikas/${encodeURIComponent(id)}/ratings`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ voterId, rating }),
-      });
-      if (!isFika(updated)) throw new Error("Servern skickade tillbaka ett ogiltigt betyg.");
-      setFikas((current) => current.map((fika) => (fika.id === id ? updated : fika)));
-      setApiMessage("");
-    } catch (error) {
-      console.error("Kunde inte dela fikabetyget med servern.", error);
-      setApiMessage("Betyget sparades bara på den här enheten. Försök igen när du är online.");
     }
   }
 
@@ -314,7 +253,28 @@ function App() {
 
       <section className="main-content">
         {activeView === "calendar" ? (
-          <div className="dashboard-grid">
+          <>
+            <section className="next-fika-card">
+              <div className="card-topline"><span>NÄSTA FIKA</span><span className="tiny-star">✳</span></div>
+              {upcoming.length ? (
+                <>
+                  <p className="next-date">{formatShortDate(upcoming[0].date)}</p>
+                  <h3>{upcoming[0].treat === "Hemligt fika" ? "Något gott är på gång…" : upcoming[0].treat}</h3>
+                  <div className="next-host"><span className="avatar">{upcoming[0].host.slice(0, 1).toUpperCase()}</span> {upcoming[0].host} fixar fikat</div>
+                </>
+              ) : (
+                <>
+                  <p className="next-date">Kalendern är tom</p>
+                  <h3>Dags att rädda fikapausen!</h3>
+                  <div className="next-host">Klicka på en dag och bli fikasuperhjälte.</div>
+                </>
+              )}
+              <button className="text-button" onClick={() => openDay(upcoming[0]?.date ?? todayKey)}>
+                {upcoming.length ? "Visa fikadagen" : "Boka första fikat"} <span>→</span>
+              </button>
+              <span className="card-cookie" aria-hidden="true">🍪</span>
+            </section>
+            <div className="dashboard-grid">
             <section className="calendar-panel panel">
               <div className="section-heading">
                 <div>
@@ -368,64 +328,43 @@ function App() {
             </section>
 
             <aside className="sidebar">
-              <section className="next-fika-card">
-                <div className="card-topline"><span>NÄSTA FIKA</span><span className="tiny-star">✳</span></div>
-                {upcoming.length ? (
-                  <>
-                    <p className="next-date">{formatShortDate(upcoming[0].date)}</p>
-                    <h3>{upcoming[0].treat === "Hemligt" ? "Något gott är på gång…" : upcoming[0].treat}</h3>
-                    <div className="next-host"><span className="avatar">{upcoming[0].host.slice(0, 1).toUpperCase()}</span> {upcoming[0].host} fixar fikat</div>
-                  </>
-                ) : (
-                  <>
-                    <p className="next-date">Kalendern är tom</p>
-                    <h3>Dags att rädda fikapausen!</h3>
-                    <div className="next-host">Klicka på en dag och bli fikasuperhjälte.</div>
-                  </>
-                )}
-                <button className="text-button" onClick={() => openDay(upcoming[0]?.date ?? todayKey)}>
-                  {upcoming.length ? "Visa fikadagen" : "Boka första fikat"} <span>→</span>
-                </button>
-                <span className="card-cookie" aria-hidden="true">🍪</span>
-              </section>
-
               <section className="mini-leaderboard panel">
                 <div className="mini-heading">
-                  <div><span className="eyebrow">FIKAKÄRLEK</span><h3>Veckans favoriter</h3></div>
+                  <div><span className="eyebrow">TACK FÖR FIKAT</span><h3>Mest bjussiga</h3></div>
                   <span className="trophy">🏆</span>
                 </div>
                 {leaderboard.slice(0, 3).map((person, index) => (
                   <div className="leader-row" key={person.host}>
                     <span className={`leader-rank rank-${index + 1}`}>{index + 1}</span>
-                    <span className="leader-name">{person.host}<small>{person.count} {person.count === 1 ? "betyg" : "betyg"}</small></span>
-                    <span className="leader-score">★ {person.average.toFixed(1)}</span>
+                    <span className="leader-name">{person.host}<small>{person.count} {person.count === 1 ? "fikabjudning" : "fikabjudningar"}</small></span>
+                    <span className="leader-score">☕ {person.count}</span>
                   </div>
                 ))}
-                {!leaderboard.length && <p className="empty-hint">Rösta på en fika så dyker favoriterna upp här.</p>}
-                <button className="text-button leaderboard-link" onClick={() => setActiveView("leaderboard")}>Hela topplistan <span>→</span></button>
+                {!leaderboard.length && <p className="empty-hint">Tacka någon genom att bjuda på fika – topplistan börjar efter första fikadagen.</p>}
+                <button className="text-button leaderboard-link" onClick={() => setActiveView("leaderboard")}>Hela listan <span>→</span></button>
               </section>
             </aside>
           </div>
+          </>
         ) : (
           <section className="leaderboard-page panel">
             <div className="leaderboard-intro">
-              <span className="eyebrow">ÄRA, BERÖMMELSE & SMULOR</span>
-              <h2>Chalmers fikalegender</h2>
-              <p>Stjärnorna avgör. Smulorna är ett kvalitetsmärke.</p>
+              <span className="eyebrow">TACK FÖR FIKAT</span>
+              <h2>Chalmers mest bjussiga</h2>
+              <p>En liten topplista över alla som gjort fikapausen lite godare.</p>
             </div>
             <div className="leaderboard-list">
               {leaderboard.map((person, index) => (
                 <div className="full-leader-row" key={person.host}>
                   <span className={`large-rank rank-${index + 1}`}>{index === 0 ? "✦" : index + 1}</span>
                   <span className="leader-avatar">{person.host.slice(0, 1).toUpperCase()}</span>
-                  <span className="full-leader-name">{person.host}<small>{person.count} fika{person.count === 1 ? "" : "r"} betygsatt{person.count === 1 ? "" : "a"}</small></span>
-                  <span className="big-stars" aria-label={`${person.average.toFixed(1)} av 5 stjärnor`}>{"★".repeat(Math.round(person.average))}<span>{"★".repeat(5 - Math.round(person.average))}</span></span>
-                  <strong className="big-score">{person.average.toFixed(1)}</strong>
+                  <span className="full-leader-name">{person.host}<small>{person.count} {person.count === 1 ? "fikabjudning" : "fikabjudningar"}</small></span>
+                  <strong className="big-score">{person.count} ☕</strong>
                 </div>
               ))}
-              {!leaderboard.length && <p className="empty-hint">Ingen fika har fått betyg ännu. Bli den första att rösta!</p>}
+              {!leaderboard.length && <p className="empty-hint">Topplistan fylls automatiskt efter att någon bjudit på sin första fika.</p>}
             </div>
-            <div className="leaderboard-footer"><span>🍩</span> Nästa stjärna kan vara din fika. <button className="text-button" onClick={() => setActiveView("calendar")}>Till kalendern →</button></div>
+            <div className="leaderboard-footer"><span>☕</span> Fika är bäst när man delar den. <button className="text-button" onClick={() => setActiveView("calendar")}>Till kalendern →</button></div>
           </section>
         )}
         <footer className="page-footer">
@@ -455,20 +394,7 @@ function App() {
                       <span className="avatar">{fika.host.slice(0, 1).toUpperCase()}</span>
                       <span><strong>{fika.host}</strong><small>{fika.treat}</small></span>
                     </div>
-                    {selectedDate <= todayKey ? (
-                      <div className="rating-control" aria-label={`Betygsätt ${fika.treat}`}>
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <button
-                            key={star}
-                            className={star <= (fika.myRating || Math.round(fika.rating)) ? "star-button filled" : "star-button"}
-                            onClick={() => rateFika(fika.id, star)}
-                            aria-label={`${star} stjärnor`}
-                            title={`${star} stjärnor`}
-                          >★</button>
-                        ))}
-                        {fika.ratingCount ? <span className="rating-count">{fika.rating.toFixed(1)} · {fika.ratingCount} röster</span> : null}
-                      </div>
-                    ) : <span className="coming-soon">På gång ✦</span>}
+                    {selectedDate > todayKey && <span className="coming-soon">På gång ✦</span>}
                   </article>
                 ))}
               </div>
@@ -487,9 +413,6 @@ function App() {
                 </label>
                 <button className="button button-primary modal-submit" type="submit">Jag fixar fika <span>✦</span></button>
               </form>
-            )}
-            {selectedDate < todayKey && selectedFikas.length > 0 && (
-              <p className="rating-hint">Tryck på stjärnorna och rösta på fikat ⭐</p>
             )}
           </section>
         </div>

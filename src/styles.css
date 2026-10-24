@@ -102,15 +102,15 @@ h1 em { color: #d96c55; font-weight: 600; }
 .calendar-legend { display: flex; justify-content: space-between; gap: 8px; padding: 12px 0 0; color: #818980; font-size: 9px; }
 .calendar-legend b { color: var(--orange); font-size: 13px; }
 .sidebar { display: flex; flex-direction: column; gap: 15px; }
-.next-fika-card { min-height: 193px; padding: 19px 21px; background: #244b40; color: #fff9ea; border-radius: 7px; position: relative; overflow: hidden; }
-.card-topline { position: relative; z-index: 1; display: flex; justify-content: space-between; color: #d5dfcb; font-size: 8px; font-weight: 700; letter-spacing: 1.35px; }
+.next-fika-card { min-height: 128px; margin-bottom: 18px; padding: 16px 22px; display: grid; grid-template-columns: minmax(125px, .7fr) minmax(170px, 1.1fr) minmax(150px, 1fr) auto; grid-template-rows: 14px 1fr; align-items: center; column-gap: 18px; background: #244b40; color: #fff9ea; border-radius: 7px; position: relative; overflow: hidden; }
+.card-topline { grid-column: 1 / -1; position: relative; z-index: 1; display: flex; justify-content: space-between; color: #d5dfcb; font-size: 8px; font-weight: 700; letter-spacing: 1.35px; }
 .tiny-star { color: #f5c26a; font-size: 15px; }
-.next-date { position: relative; z-index: 1; margin: 16px 0 4px; color: #d5c7a6; font-size: 10px; text-transform: capitalize; }
-.next-fika-card h3 { position: relative; z-index: 1; max-width: 240px; margin-bottom: 10px; font: 600 18px/1.3 var(--serif); }
-.next-host { position: relative; z-index: 1; display: flex; align-items: center; gap: 7px; color: #dae2d7; font-size: 9px; }
+.next-date { position: relative; z-index: 1; margin: 0; color: #d5c7a6; font-size: 11px; text-transform: capitalize; }
+.next-fika-card h3 { position: relative; z-index: 1; max-width: 280px; margin: 0; font: 600 18px/1.3 var(--serif); }
+.next-host { position: relative; z-index: 1; display: flex; align-items: center; gap: 7px; color: #dae2d7; font-size: 10px; }
 .avatar, .leader-avatar { display: inline-grid; place-items: center; width: 24px; height: 24px; flex: 0 0 24px; border-radius: 50%; color: #354f43; background: #f4d08b; font-size: 10px; font-weight: 700; }
 .text-button { padding: 0; border: 0; background: transparent; color: inherit; font-size: 9px; font-weight: 700; cursor: pointer; }
-.next-fika-card .text-button { position: relative; z-index: 1; margin-top: 16px; color: #f4c574; }
+.next-fika-card .text-button { position: relative; z-index: 1; color: #f4c574; white-space: nowrap; }
 .text-button span { margin-left: 5px; }
 .card-cookie { position: absolute; right: 15px; bottom: 21px; font-size: 39px; opacity: .16; transform: rotate(-20deg); }
 .mini-leaderboard { padding: 17px 19px 14px; }
@@ -143,8 +143,6 @@ h1 em { color: #d96c55; font-weight: 600; }
 .leader-avatar { width: 35px; height: 35px; flex-basis: 35px; font-size: 13px; background: #dcebe0; }
 .full-leader-name { display: flex; flex: 1; flex-direction: column; gap: 3px; font-size: 12px; font-weight: 700; }
 .full-leader-name small { color: #8b938c; font-size: 9px; font-weight: 400; }
-.big-stars { color: #d89d43; font-size: 13px; letter-spacing: 1px; white-space: nowrap; }
-.big-stars span { color: #e5e1d7; }
 .big-score { min-width: 25px; text-align: right; font: 600 17px var(--serif); }
 .leaderboard-footer { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 25px; color: #778179; font-size: 10px; }
 .leaderboard-footer > span { font-size: 17px; }
@@ -162,10 +160,6 @@ h1 em { color: #d96c55; font-weight: 600; }
 .signup-details > span:last-child { display: flex; flex-direction: column; gap: 3px; }
 .signup-details strong { font-size: 10px; }
 .signup-details small { color: #808880; font-size: 9px; }
-.rating-control { display: flex; gap: 1px; }
-.star-button { padding: 2px; border: 0; background: transparent; color: #d8d5cd; font-size: 17px; cursor: pointer; }
-.star-button.filled { color: #dca34d; }
-.rating-count { margin-left: 6px; color: #899189; font-size: 8px; white-space: nowrap; }
 .coming-soon { color: #6c8878; font-size: 9px; font-weight: 700; }
 .empty-day { margin: 0 0 13px; color: #77827a; font-size: 10px; line-height: 1.55; }
 .signup-form { display: grid; gap: 12px; margin-top: 17px; }
@@ -174,14 +168,12 @@ h1 em { color: #d96c55; font-weight: 600; }
 .signup-form input::placeholder { color: #afb4ac; }
 .optional { color: #9aa198; font-weight: 400; }
 .modal-submit { width: 100%; margin-top: 3px; }
-.rating-hint { margin: 15px 0 0; color: #899189; font-size: 9px; text-align: center; }
 .save-warning { position: fixed; z-index: 8; right: 20px; bottom: 20px; padding: 12px 16px; border-radius: 4px; color: white; background: #b44e42; box-shadow: 0 4px 20px #0002; font-size: 11px; }
 
 @media (max-width: 920px) {
   .topbar { padding: 0 25px; }
   .hero { margin: 0 20px; padding-left: 40px; }
   .hero-art { right: 15px; width: 330px; }
-  .hero-art img { width: 200px; }
   .dashboard-grid { grid-template-columns: minmax(0, 1.5fr) minmax(260px, .9fr); gap: 15px; }
   .calendar-panel { padding: 20px 17px 13px; }
 }
@@ -211,14 +203,19 @@ h1 em { color: #d96c55; font-weight: 600; }
   .day-event { font-size: 7px; }
   .calendar-legend { font-size: 8px; }
   .sidebar { display: grid; grid-template-columns: 1fr 1fr; align-items: stretch; gap: 10px; }
-  .next-fika-card, .mini-leaderboard { min-width: 0; padding: 15px; }
-  .next-fika-card h3 { font-size: 15px; }
+  .next-fika-card { min-width: 0; padding: 15px; grid-template-columns: 1fr 1fr; grid-template-rows: 14px auto auto; column-gap: 10px; row-gap: 10px; }
+  .next-fika-card .card-topline { grid-column: 1 / -1; }
+  .next-fika-card .next-date { grid-column: 1; }
+  .next-fika-card h3 { grid-column: 2; grid-row: 2; font-size: 15px; }
+  .next-fika-card .next-host { grid-column: 1; grid-row: 3; }
+  .next-fika-card .text-button { grid-column: 2; grid-row: 3; text-align: right; }
+  .next-fika-card .card-cookie { display: none; }
+  .mini-leaderboard { min-width: 0; padding: 15px; }
   .card-cookie { right: 6px; bottom: 12px; font-size: 30px; }
   .leader-name { font-size: 9px; }
   .page-footer { font-size: 8px; }
   .leaderboard-page { padding: 27px 17px; }
   .full-leader-row { gap: 9px; padding: 12px 0; }
-  .big-stars { font-size: 10px; letter-spacing: 0; }
   .big-score { font-size: 15px; }
 }
 @media (max-width: 410px) {

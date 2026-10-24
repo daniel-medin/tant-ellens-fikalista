@@ -1,7 +1,7 @@
 {
   "name": "Tant Ellens Fikalista",
   "short_name": "Fikalistan",
-  "description": "Boka fika och rösta fram Chalmers godaste fikabröd.",
+  "description": "Boka en fikadag och se vilka som bjudit flest gånger.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#f8f4ea",
