@@ -312,6 +312,9 @@ function App() {
           <img className="brand-mark" src="/ellen-yarn.svg" alt="Ellen som garnfigur" />
           <span className="brand-name">Tant Ellens</span>
         </a>
+        <button className="button book-fika-button" onClick={() => setActiveView("calendar")}>
+          <span aria-hidden="true">＋</span> Boka fika
+        </button>
         <nav className="main-nav" aria-label="Huvudmeny">
           <button
             className={activeView === "overview" ? "nav-link active" : "nav-link"}
@@ -335,53 +338,46 @@ function App() {
             Topplista <span className="nav-sparkle">✳</span>
           </button>
         </nav>
-        <div className="campus-tag"><span className="campus-dot" /> Fika förenar</div>
       </header>
 
-      <section className="main-content">
-        <div className="view-heading">
-          <div>
-            <h1>{activeView === "overview" ? "Översikt" : activeView === "calendar" ? "Kalender" : "Topplista"}</h1>
-            {activeView === "calendar" && <p className="view-description">Välj en dag för att se eller boka fika.</p>}
-          </div>
-          {activeView !== "calendar" && (
-            <button className="button book-fika-button" onClick={() => setActiveView("calendar")}>
-              <span aria-hidden="true">＋</span> Boka fika
-            </button>
-          )}
-        </div>
+      <section className="main-content" aria-label={activeView === "overview" ? "Översikt" : activeView === "calendar" ? "Kalender" : "Topplista"}>
         {activeView === "overview" ? (
           <div className="overview-grid">
-            <section className={todayFikas.length ? "next-fika-card" : "next-fika-card upcoming-fika-card"} aria-labelledby="next-fika-title">
-              <div className="card-topline"><h2 id="next-fika-title">{todayFikas.length ? "Fika idag" : "Nästa fika"}</h2><span className="tiny-star" aria-hidden="true">✳</span></div>
-              {featuredFikas.length ? (
-                todayFikas.length ? <FikaSummary fikas={featuredFikas} /> : <UpcomingFikaSummary fikas={featuredFikas} />
-              ) : (
-                <>
-                  <p className="next-treat">Dags att rädda fikapausen!</p>
-                  <div className="next-host">Välj en dag i kalendern och bli fikasuperhjälte.</div>
-                </>
-              )}
-              {followingFikaGroups.map((group, index) => (
-                <section className="following-fika" key={group[0].date} aria-labelledby={`following-fika-${group[0].date}`}>
-                  <h3 id={`following-fika-${group[0].date}`}>{todayFikas.length && index === 0 ? "Nästa fika:" : "Kommande fika:"}</h3>
-                  <UpcomingFikaSummary fikas={group} />
-                </section>
-              ))}
-              {todayFikas.length > 0 && !nextFikas.length && (
-                <section className="following-fika" aria-labelledby="following-fika-title">
-                  <h3 id="following-fika-title">Nästa fika:</h3>
-                  <p className="next-host">Inget mer fika är bokat än.</p>
-                </section>
-              )}
-              {hasMoreFikas && (
-                <button className="text-button show-next-fika" onClick={() => setAdditionalFikaCount((current) => current + 1)}>
-                  Visa nästa <span aria-hidden="true">↓</span>
-                </button>
-              )}
-              {!featuredFikas.length && <button className="text-button" onClick={() => setActiveView("calendar")}>Boka första fikat <span>→</span></button>}
-              <span className="card-cookie" aria-hidden="true">🍪</span>
-            </section>
+            <div className="fika-overview">
+              <section className={todayFikas.length ? "next-fika-card" : "next-fika-card upcoming-fika-card"} aria-labelledby="next-fika-title">
+                <div className="card-topline"><h2 id="next-fika-title">{todayFikas.length ? "Fika idag" : "Nästa fika"}</h2><span className="tiny-star" aria-hidden="true">✳</span></div>
+                {featuredFikas.length ? (
+                  todayFikas.length ? <FikaSummary fikas={featuredFikas} /> : <UpcomingFikaSummary fikas={featuredFikas} />
+                ) : (
+                  <>
+                    <p className="next-treat">Dags att rädda fikapausen!</p>
+                    <div className="next-host">Välj en dag i kalendern och bli fikasuperhjälte.</div>
+                  </>
+                )}
+                {!featuredFikas.length && <button className="text-button" onClick={() => setActiveView("calendar")}>Boka första fikat <span>→</span></button>}
+                <span className="card-cookie" aria-hidden="true">🍪</span>
+              </section>
+              <div className="following-fikas">
+                {followingFikaGroups.map((group, index) => (
+                  <section className="following-fika" key={group[0].date} aria-labelledby={`following-fika-${group[0].date}`}>
+                    {index > 0 && <hr className="fika-divider" />}
+                    <h3 id={`following-fika-${group[0].date}`}>{todayFikas.length && index === 0 ? "Nästa fika:" : "Kommande fika:"}</h3>
+                    <UpcomingFikaSummary fikas={group} />
+                  </section>
+                ))}
+                {todayFikas.length > 0 && !nextFikas.length && (
+                  <section className="following-fika" aria-labelledby="following-fika-title">
+                    <h3 id="following-fika-title">Nästa fika:</h3>
+                    <p className="next-host">Inget mer fika är bokat än.</p>
+                  </section>
+                )}
+                {hasMoreFikas && (
+                  <button className="text-button show-next-fika" onClick={() => setAdditionalFikaCount((current) => current + 1)}>
+                    Visa nästa <span aria-hidden="true">↓</span>
+                  </button>
+                )}
+              </div>
+            </div>
             <section className="mini-leaderboard panel">
               <div className="mini-heading">
                 <div><span className="eyebrow">TACK FÖR FIKAT</span><h2>Mest bjussiga</h2></div>
