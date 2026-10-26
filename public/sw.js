@@ -1,4 +1,4 @@
-const CACHE_NAME = "tant-ellens-shell-v15";
+const CACHE_NAME = "tant-ellens-shell-v16";
 const APP_SHELL = ["/", "/manifest.webmanifest", "/favicon.svg", "/ellen-yarn.svg"];
 
 self.addEventListener("install", (event) => {

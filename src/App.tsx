@@ -115,6 +115,15 @@ function FikaSummary({ fikas }: { fikas: Fika[] }) {
   );
 }
 
+function UpcomingFikaSummary({ fikas }: { fikas: Fika[] }) {
+  return (
+    <div className="upcoming-fika-row">
+      <time className="upcoming-date" dateTime={fikas[0].date}>{formatShortDate(fikas[0].date)}</time>
+      <p className="upcoming-hosts">{fikas.map((fika) => fika.host).join(", ")}</p>
+    </div>
+  );
+}
+
 function App() {
   const [initialData] = useState(() => {
     try {
@@ -346,7 +355,7 @@ function App() {
             <section className={todayFikas.length ? "next-fika-card" : "next-fika-card upcoming-fika-card"} aria-labelledby="next-fika-title">
               <div className="card-topline"><h2 id="next-fika-title">{todayFikas.length ? "Fika idag" : "Nästa fika"}</h2><span className="tiny-star" aria-hidden="true">✳</span></div>
               {featuredFikas.length ? (
-                <FikaSummary fikas={featuredFikas} />
+                todayFikas.length ? <FikaSummary fikas={featuredFikas} /> : <UpcomingFikaSummary fikas={featuredFikas} />
               ) : (
                 <>
                   <p className="next-treat">Dags att rädda fikapausen!</p>
@@ -354,9 +363,8 @@ function App() {
                 </>
               )}
               {followingFikaGroups.map((group, index) => (
-                <section className="following-fika" key={group[0].date} aria-labelledby={`following-fika-${group[0].date}`}>
-                  <h3 id={`following-fika-${group[0].date}`}>{todayFikas.length && index === 0 ? "Nästa fika" : "Kommande fika"}</h3>
-                  <FikaSummary fikas={group} />
+                <section className="following-fika" key={group[0].date} aria-label={`${todayFikas.length && index === 0 ? "Nästa fika" : "Kommande fika"}, ${formatShortDate(group[0].date)}`}>
+                  <UpcomingFikaSummary fikas={group} />
                 </section>
               ))}
               {todayFikas.length > 0 && !nextFikas.length && (
