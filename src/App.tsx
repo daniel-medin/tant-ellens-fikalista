@@ -402,7 +402,7 @@ function App() {
             <span className="eyebrow">{selectedDate === todayKey ? "IDAG" : "FIKADAG"}</span>
             <h2 id="modal-title">{formatShortDate(selectedDate)}</h2>
             <div className="modal-divider" />
-            <h3>Vilka fixar fikat?</h3>
+            <h3>{selectedDate < todayKey ? "Vilka fixade fikat?" : "Vilka fixar fikat?"}</h3>
             {selectedFikas.length ? (
               <div className="day-signups">
                 {selectedFikas.map((fika) => (
@@ -431,8 +431,9 @@ function App() {
                 ))}
               </div>
             ) : (
-              <p className="empty-day">Ingen fika bokad än. Bli dagens fikasuperhjälte!</p>
+              <p className="empty-day">{selectedDate < todayKey ? "Ingen fika var bokad den här dagen." : "Ingen fika bokad än. Bli dagens fikasuperhjälte!"}</p>
             )}
+            {selectedDate < todayKey && <p className="empty-day">Det går inte att boka fika retroaktivt.</p>}
             {selectedDate >= todayKey && (
               <form className="signup-form" onSubmit={addFika}>
                 <label>
