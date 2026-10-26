@@ -151,6 +151,8 @@ h1, h2, h3, p { margin-top: 0; }
 .signup-form label { display: grid; gap: 8px; color: #3f5548; font-size: 16px; font-weight: 700; }
 .signup-form input { width: 100%; height: 50px; padding: 0 14px; border: 1px solid #c8cec5; border-radius: 4px; background: white; color: var(--green); font-size: 17px; }
 .signup-form input::placeholder { color: #66756b; }
+.signup-form input[aria-invalid="true"] { border-color: #a63f32; }
+.field-error { color: #a63f32; font-size: 14px; font-weight: 400; line-height: 1.4; }
 .optional { color: #9aa198; font-weight: 400; }
 .modal-submit { width: 100%; margin-top: 3px; }
 .save-warning { position: fixed; z-index: 8; right: 20px; bottom: 20px; padding: 14px 18px; border-radius: 4px; color: white; background: #b44e42; box-shadow: 0 4px 20px #0002; font-size: 16px; }

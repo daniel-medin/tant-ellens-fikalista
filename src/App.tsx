@@ -96,6 +96,7 @@ function App() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [hostName, setHostName] = useState("");
   const [treatName, setTreatName] = useState("");
+  const [formErrors, setFormErrors] = useState<{ host?: string; treat?: string }>({});
   const [saveError, setSaveError] = useState(initialData.error);
   const [apiMessage, setApiMessage] = useState("");
   const [pendingFikaIds, setPendingFikaIds] = useState<Set<string>>(() => new Set());
@@ -167,11 +168,22 @@ function App() {
     setSelectedDate(key);
     setHostName("");
     setTreatName("");
+    setFormErrors({});
   }
 
   async function addFika(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!selectedDate || !hostName.trim()) return;
+    if (!selectedDate) return;
+    const errors: { host?: string; treat?: string } = {};
+    if (!hostName.trim()) errors.host = "Skriv ditt namn så att vi vet vem som fixar fikat.";
+    else if (hostName.trim().length > 40) errors.host = "Namnet får vara högst 40 tecken.";
+    if (treatName.length > 60) errors.treat = "Fikabeskrivningen får vara högst 60 tecken.";
+    setFormErrors(errors);
+    if (errors.host || errors.treat) {
+      const field = event.currentTarget.elements.namedItem(errors.host ? "host" : "treat");
+      if (field instanceof HTMLInputElement) field.focus();
+      return;
+    }
     const localId = crypto.randomUUID();
     const newFika: Fika = {
       id: localId,
@@ -183,6 +195,7 @@ function App() {
     setPendingFikaIds((current) => new Set(current).add(localId));
     setHostName("");
     setTreatName("");
+    setSelectedDate(null);
     try {
       const created = await apiRequest("/api/fikas", {
         method: "POST",
@@ -212,6 +225,7 @@ function App() {
     try {
       await apiRequest(`/api/fikas/${encodeURIComponent(fika.id)}`, { method: "DELETE" });
       setFikas((current) => current.filter((item) => item.id !== fika.id));
+      setSelectedDate((current) => current === fika.date ? null : current);
       setApiMessage("");
     } catch (error) {
       console.error("Kunde inte ta bort fikat.", error);
@@ -435,14 +449,22 @@ function App() {
             )}
             {selectedDate < todayKey && <p className="empty-day">Det går inte att boka fika retroaktivt.</p>}
             {selectedDate >= todayKey && (
-              <form className="signup-form" onSubmit={addFika}>
+              <form className="signup-form" onSubmit={addFika} noValidate>
                 <label>
                   Ditt namn
-                  <input value={hostName} onChange={(event) => setHostName(event.target.value)} placeholder="Vad ska vi kalla dig?" required maxLength={40} />
+                  <input name="host" value={hostName} onChange={(event) => {
+                    setHostName(event.target.value);
+                    setFormErrors((current) => ({ ...current, host: undefined }));
+                  }} placeholder="Vad ska vi kalla dig?" required maxLength={40} aria-invalid={!!formErrors.host} aria-describedby={formErrors.host ? "host-error" : undefined} />
+                  {formErrors.host && <span className="field-error" id="host-error" role="alert">{formErrors.host}</span>}
                 </label>
                 <label>
                   Vad bjuder du på? <span className="optional">(valfritt)</span>
-                  <input value={treatName} onChange={(event) => setTreatName(event.target.value)} placeholder="Hemligt fika funkar också…" maxLength={60} />
+                  <input name="treat" value={treatName} onChange={(event) => {
+                    setTreatName(event.target.value);
+                    setFormErrors((current) => ({ ...current, treat: undefined }));
+                  }} placeholder="Hemligt fika funkar också…" maxLength={60} aria-invalid={!!formErrors.treat} aria-describedby={formErrors.treat ? "treat-error" : undefined} />
+                  {formErrors.treat && <span className="field-error" id="treat-error" role="alert">{formErrors.treat}</span>}
                 </label>
                 <button className="button button-primary modal-submit" type="submit">Jag fixar fika <span>✦</span></button>
               </form>
