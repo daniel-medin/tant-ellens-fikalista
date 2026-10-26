@@ -89,9 +89,18 @@ h1, h2, h3, p { margin-top: 0; }
 .next-treat { position: relative; z-index: 1; max-width: 100%; margin: 0; font: 600 28px/1.3 var(--serif); overflow-wrap: anywhere; }
 .next-host { position: relative; z-index: 1; display: flex; align-items: center; gap: 9px; color: #eaf0e5; font-size: 16px; line-height: 1.5; overflow-wrap: anywhere; }
 .fika-summary-entry { position: relative; z-index: 1; display: grid; gap: 12px; max-width: 100%; }
-.following-fika { align-self: stretch; position: relative; z-index: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 14px; margin-top: 4px; padding-top: 20px; border-top: 1px solid #ffffff30; }
-.following-fika h3 { color: #e1e9d9; }
-.following-fika .next-date { font-size: clamp(26px, 3vw, 34px); }
+.following-fika { align-self: stretch; position: relative; z-index: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; margin-top: 4px; padding: 14px 16px; border-radius: 7px; background: #e8eee8; color: #3f5548; }
+.following-fika h3, .upcoming-fika-card .card-topline { color: #57675c; }
+.following-fika h3, .upcoming-fika-card .card-topline h2 { font-size: 11px; }
+.following-fika .next-date, .upcoming-fika-card .next-date { color: #425c49; font-size: 20px; }
+.following-fika .next-treat, .upcoming-fika-card .next-treat { font-size: 18px; }
+.following-fika .next-host, .upcoming-fika-card .next-host { gap: 6px; color: #526158; font-size: 13px; }
+.following-fika .fika-summary-entry, .upcoming-fika-card .fika-summary-entry { gap: 5px; }
+.following-fika .avatar, .upcoming-fika-card .avatar { width: 22px; height: 22px; flex-basis: 22px; font-size: 11px; }
+.next-fika-card.upcoming-fika-card { min-height: 0; padding: 20px 24px; gap: 8px; background: #e8eee8; color: #3f5548; }
+.upcoming-fika-card .tiny-star { color: #8d682d; }
+.upcoming-fika-card .text-button { color: #425c49; }
+.upcoming-fika-card .card-cookie { font-size: 40px; }
 .avatar, .leader-avatar { display: inline-grid; place-items: center; width: 32px; height: 32px; flex: 0 0 32px; border-radius: 50%; color: #354f43; background: #f4d08b; font-size: 15px; font-weight: 700; }
 .text-button { min-height: 36px; padding: 4px 0; border: 0; background: transparent; color: inherit; font-size: 15px; font-weight: 700; cursor: pointer; }
 .next-fika-card .text-button { position: relative; z-index: 1; margin-top: auto; color: #ffcf7e; white-space: nowrap; }
