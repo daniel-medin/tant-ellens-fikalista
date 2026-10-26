@@ -83,11 +83,15 @@ h1, h2, h3, p { margin-top: 0; }
 .calendar-legend b { color: var(--orange); font-size: 13px; }
 .next-fika-card { min-width: 0; min-height: 320px; padding: 28px 32px; display: flex; flex-direction: column; align-items: flex-start; gap: 16px; background: #244b40; color: #fff9ea; border-radius: 7px; position: relative; overflow: hidden; }
 .card-topline { align-self: stretch; position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center; color: #e1e9d9; }
-.card-topline h2 { margin: 0; font-size: 13px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; }
+.card-topline h2, .following-fika h3 { margin: 0; font-size: 13px; font-weight: 700; letter-spacing: 1.1px; text-transform: uppercase; }
 .tiny-star { color: #f5c26a; font-size: 15px; }
 .next-date { position: relative; z-index: 1; margin: 0; color: #f4deb2; font: 600 clamp(32px, 4vw, 46px)/1.2 var(--serif); text-transform: capitalize; }
 .next-treat { position: relative; z-index: 1; max-width: 100%; margin: 0; font: 600 28px/1.3 var(--serif); overflow-wrap: anywhere; }
 .next-host { position: relative; z-index: 1; display: flex; align-items: center; gap: 9px; color: #eaf0e5; font-size: 16px; line-height: 1.5; overflow-wrap: anywhere; }
+.fika-summary-entry { position: relative; z-index: 1; display: grid; gap: 12px; max-width: 100%; }
+.following-fika { align-self: stretch; position: relative; z-index: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 14px; margin-top: 4px; padding-top: 20px; border-top: 1px solid #ffffff30; }
+.following-fika h3 { color: #e1e9d9; }
+.following-fika .next-date { font-size: clamp(26px, 3vw, 34px); }
 .avatar, .leader-avatar { display: inline-grid; place-items: center; width: 32px; height: 32px; flex: 0 0 32px; border-radius: 50%; color: #354f43; background: #f4d08b; font-size: 15px; font-weight: 700; }
 .text-button { min-height: 36px; padding: 4px 0; border: 0; background: transparent; color: inherit; font-size: 15px; font-weight: 700; cursor: pointer; }
 .next-fika-card .text-button { position: relative; z-index: 1; margin-top: auto; color: #ffcf7e; white-space: nowrap; }

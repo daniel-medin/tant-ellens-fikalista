@@ -81,6 +81,20 @@ function sameMonth(a: Date, b: Date): boolean {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth();
 }
 
+function FikaSummary({ fikas }: { fikas: Fika[] }) {
+  return (
+    <>
+      <p className="next-date">{formatShortDate(fikas[0].date)}</p>
+      {fikas.map((fika) => (
+        <div className="fika-summary-entry" key={fika.id}>
+          <p className="next-treat">{fika.treat === "Hemligt fika" ? "Något gott är på gång…" : fika.treat}</p>
+          <div className="next-host"><span className="avatar">{fika.host.slice(0, 1).toUpperCase()}</span> {fika.host} fixar fikat</div>
+        </div>
+      ))}
+    </>
+  );
+}
+
 function App() {
   const [initialData] = useState(() => {
     try {
@@ -135,6 +149,10 @@ function App() {
     () => fikas.filter((fika) => fika.date >= todayKey).sort((a, b) => a.date.localeCompare(b.date)),
     [fikas, todayKey],
   );
+  const todayFikas = upcoming.filter((fika) => fika.date === todayKey);
+  const nextFikaDate = upcoming.find((fika) => fika.date > todayKey)?.date;
+  const nextFikas = upcoming.filter((fika) => fika.date === nextFikaDate);
+  const featuredFikas = todayFikas.length ? todayFikas : nextFikas;
 
   const leaderboard = useMemo(() => {
     const hostedCount = new Map<string, { host: string; count: number }>();
@@ -291,22 +309,22 @@ function App() {
         {activeView === "overview" ? (
           <div className="overview-grid">
             <section className="next-fika-card" aria-labelledby="next-fika-title">
-              <div className="card-topline"><h2 id="next-fika-title">Nästa fika</h2><span className="tiny-star" aria-hidden="true">✳</span></div>
-              {upcoming.length ? (
-                <>
-                  <p className="next-date">{formatShortDate(upcoming[0].date)}</p>
-                  <p className="next-treat">{upcoming[0].treat === "Hemligt fika" ? "Något gott är på gång…" : upcoming[0].treat}</p>
-                  <div className="next-host"><span className="avatar">{upcoming[0].host.slice(0, 1).toUpperCase()}</span> {upcoming[0].host} fixar fikat</div>
-                </>
+              <div className="card-topline"><h2 id="next-fika-title">{todayFikas.length ? "Fika idag" : "Nästa fika"}</h2><span className="tiny-star" aria-hidden="true">✳</span></div>
+              {featuredFikas.length ? (
+                <FikaSummary fikas={featuredFikas} />
               ) : (
                 <>
                   <p className="next-treat">Dags att rädda fikapausen!</p>
                   <div className="next-host">Välj en dag i kalendern och bli fikasuperhjälte.</div>
                 </>
               )}
-              <button className="text-button" onClick={() => upcoming.length ? openDay(upcoming[0].date) : setActiveView("calendar")}>
-                {upcoming.length ? "Visa fikadagen" : "Boka första fikat"} <span>→</span>
-              </button>
+              {todayFikas.length > 0 && (
+                <section className="following-fika" aria-labelledby="following-fika-title">
+                  <h3 id="following-fika-title">Nästa fika</h3>
+                  {nextFikas.length ? <FikaSummary fikas={nextFikas} /> : <p className="next-host">Inget mer fika är bokat än.</p>}
+                </section>
+              )}
+              {!featuredFikas.length && <button className="text-button" onClick={() => setActiveView("calendar")}>Boka första fikat <span>→</span></button>}
               <span className="card-cookie" aria-hidden="true">🍪</span>
             </section>
             <section className="mini-leaderboard panel">
