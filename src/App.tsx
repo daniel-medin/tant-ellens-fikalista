@@ -7,7 +7,7 @@ type Fika = {
   treat: string;
 };
 
-type View = "calendar" | "leaderboard";
+type View = "overview" | "calendar" | "leaderboard";
 
 const storageKey = "tant-ellens-fikalista-v2";
 const weekdayNames = ["Mån", "Tis", "Ons", "Tor", "Fre", "Lör", "Sön"];
@@ -91,13 +91,14 @@ function App() {
     }
   });
   const [fikas, setFikas] = useState<Fika[]>(initialData.fikas);
-  const [activeView, setActiveView] = useState<View>("calendar");
+  const [activeView, setActiveView] = useState<View>("overview");
   const [visibleMonth, setVisibleMonth] = useState(() => new Date());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [hostName, setHostName] = useState("");
   const [treatName, setTreatName] = useState("");
   const [saveError, setSaveError] = useState(initialData.error);
   const [apiMessage, setApiMessage] = useState("");
+  const [pendingFikaIds, setPendingFikaIds] = useState<Set<string>>(() => new Set());
   const todayKey = dateKey(new Date());
 
   useEffect(() => {
@@ -177,6 +178,7 @@ function App() {
       treat: treatName.trim() || "Hemligt fika",
     };
     setFikas((current) => [...current, newFika]);
+    setPendingFikaIds((current) => new Set(current).add(localId));
     setHostName("");
     setTreatName("");
     try {
@@ -191,6 +193,33 @@ function App() {
     } catch (error) {
       console.error("Kunde inte dela fikaanmälan med servern.", error);
       setApiMessage("Anmälan sparades bara på den här enheten. Försök igen när du är online.");
+    } finally {
+      setPendingFikaIds((current) => {
+        const next = new Set(current);
+        next.delete(localId);
+        return next;
+      });
+    }
+  }
+
+  async function removeFika(fika: Fika) {
+    if (pendingFikaIds.has(fika.id)) return;
+    if (!window.confirm(`Är du säker? Det blir ju inte kul utan fika!\n\nTa bort fikat som ${fika.host} fixar ${formatShortDate(fika.date)}?`)) return;
+
+    setPendingFikaIds((current) => new Set(current).add(fika.id));
+    try {
+      await apiRequest(`/api/fikas/${encodeURIComponent(fika.id)}`, { method: "DELETE" });
+      setFikas((current) => current.filter((item) => item.id !== fika.id));
+      setApiMessage("");
+    } catch (error) {
+      console.error("Kunde inte ta bort fikat.", error);
+      setApiMessage("Kunde inte ta bort fikat. Försök igen.");
+    } finally {
+      setPendingFikaIds((current) => {
+        const next = new Set(current);
+        next.delete(fika.id);
+        return next;
+      });
     }
   }
 
@@ -201,19 +230,28 @@ function App() {
   return (
     <main className="app-shell">
       <header className="topbar">
-        <a className="brand" href="#" onClick={() => setActiveView("calendar")}>
+        <a className="brand" href="#" onClick={() => setActiveView("overview")}>
           <img className="brand-mark" src="/ellen-yarn.svg" alt="Ellen som garnfigur" />
           <span className="brand-name">Tant Ellens</span>
         </a>
         <nav className="main-nav" aria-label="Huvudmeny">
           <button
+            className={activeView === "overview" ? "nav-link active" : "nav-link"}
+            aria-current={activeView === "overview" ? "page" : undefined}
+            onClick={() => setActiveView("overview")}
+          >
+            Översikt
+          </button>
+          <button
             className={activeView === "calendar" ? "nav-link active" : "nav-link"}
+            aria-current={activeView === "calendar" ? "page" : undefined}
             onClick={() => setActiveView("calendar")}
           >
             Kalender
           </button>
           <button
             className={activeView === "leaderboard" ? "nav-link active" : "nav-link"}
+            aria-current={activeView === "leaderboard" ? "page" : undefined}
             onClick={() => setActiveView("leaderboard")}
           >
             Topplista <span className="nav-sparkle">✳</span>
@@ -222,115 +260,103 @@ function App() {
         <div className="campus-tag"><span className="campus-dot" /> Fika förenar</div>
       </header>
 
-      <section className="hero">
-        <div className="hero-copy">
-          <span className="eyebrow"><span>☕</span> CHALMERS FIKAKLUBB</span>
-          <h1>En riktigt bra fika</h1>
-          <p>Boka en dag, bjut på nått gött.</p>
-          <div className="hero-actions">
-            <button className="button button-primary" onClick={() => openDay(todayKey)}>
-              <span>＋</span> Boka fika
-            </button>
-            <button className="button button-quiet" onClick={() => setActiveView("leaderboard")}>
-              Se topplistan <span>↗</span>
-            </button>
-          </div>
-        </div>
-      </section>
-
       <section className="main-content">
-        {activeView === "calendar" ? (
-          <>
-            <section className={upcoming.length ? "next-fika-card" : "next-fika-card next-fika-empty"}>
-              <div className="card-topline"><span>NÄSTA FIKA</span><span className="tiny-star">✳</span></div>
+        <div className="view-heading">
+          <h1>{activeView === "overview" ? "Översikt" : activeView === "calendar" ? "Kalender" : "Topplista"}</h1>
+          {activeView !== "calendar" && (
+            <button className="button book-fika-button" onClick={() => setActiveView("calendar")}>
+              <span aria-hidden="true">＋</span> Boka fika
+            </button>
+          )}
+        </div>
+        {activeView === "overview" ? (
+          <div className="overview-grid">
+            <section className="next-fika-card" aria-labelledby="next-fika-title">
+              <div className="card-topline"><h2 id="next-fika-title">Nästa fika</h2><span className="tiny-star" aria-hidden="true">✳</span></div>
               {upcoming.length ? (
                 <>
                   <p className="next-date">{formatShortDate(upcoming[0].date)}</p>
-                  <h3>{upcoming[0].treat === "Hemligt fika" ? "Något gott är på gång…" : upcoming[0].treat}</h3>
+                  <p className="next-treat">{upcoming[0].treat === "Hemligt fika" ? "Något gott är på gång…" : upcoming[0].treat}</p>
                   <div className="next-host"><span className="avatar">{upcoming[0].host.slice(0, 1).toUpperCase()}</span> {upcoming[0].host} fixar fikat</div>
                 </>
               ) : (
                 <>
-                  <h3>Dags att rädda fikapausen!</h3>
-                  <div className="next-host">Klicka på en dag och bli fikasuperhjälte.</div>
+                  <p className="next-treat">Dags att rädda fikapausen!</p>
+                  <div className="next-host">Välj en dag i kalendern och bli fikasuperhjälte.</div>
                 </>
               )}
-              <button className="text-button" onClick={() => openDay(upcoming[0]?.date ?? todayKey)}>
+              <button className="text-button" onClick={() => upcoming.length ? openDay(upcoming[0].date) : setActiveView("calendar")}>
                 {upcoming.length ? "Visa fikadagen" : "Boka första fikat"} <span>→</span>
               </button>
               <span className="card-cookie" aria-hidden="true">🍪</span>
             </section>
-            <div className="dashboard-grid">
-            <section className="calendar-panel panel">
-              <div className="section-heading">
-                <div>
-                  <h2>Fikakalendern</h2>
+            <section className="mini-leaderboard panel">
+              <div className="mini-heading">
+                <div><span className="eyebrow">TACK FÖR FIKAT</span><h2>Mest bjussiga</h2></div>
+                <span className="trophy">🏆</span>
+              </div>
+              {leaderboard.slice(0, 3).map((person, index) => (
+                <div className="leader-row" key={person.host}>
+                  <span className={`leader-rank rank-${index + 1}`}>{index + 1}</span>
+                  <span className="leader-name">{person.host}<small>{person.count} {person.count === 1 ? "fikabjudning" : "fikabjudningar"}</small></span>
+                  <span className="leader-score">☕ {person.count}</span>
                 </div>
-                <div className="month-switcher">
-                  <button aria-label="Föregående månad" onClick={() => changeMonth(-1)}>‹</button>
-                  <strong>{monthNames[visibleMonth.getMonth()]} {visibleMonth.getFullYear()}</strong>
-                  <button aria-label="Nästa månad" onClick={() => changeMonth(1)}>›</button>
-                </div>
-              </div>
-              <div className="calendar-grid" role="grid" aria-label="Fikakalender">
-                {weekdayNames.map((day) => <div className="weekday" key={day}>{day}</div>)}
-                {monthDays.map((day) => {
-                  const key = dateKey(day);
-                  const dayFikas = fikas.filter((fika) => fika.date === key);
-                  const isToday = key === todayKey;
-                  return (
-                    <button
-                      className={[
-                        "calendar-day",
-                        sameMonth(day, visibleMonth) ? "" : "outside-month",
-                        isToday ? "today" : "",
-                        selectedDate === key ? "selected" : "",
-                      ].filter(Boolean).join(" ")}
-                      key={key}
-                      onClick={() => openDay(key)}
-                      aria-label={`${formatShortDate(key)}${dayFikas.length ? `, ${dayFikas.length} fika${dayFikas.length > 1 ? "n" : ""}` : ""}`}
-                    >
-                      <span className="day-number">{day.getDate()}</span>
-                      {dayFikas.length > 0 && (
-                        <span className="day-events">
-                          {dayFikas.slice(0, 2).map((fika) => (
-                            <span className="day-event" key={fika.id}>
-                              <span className="event-dot" /> {fika.host}
-                            </span>
-                          ))}
-                          {dayFikas.length > 2 && <span className="more-events">+{dayFikas.length - 2} till</span>}
-                        </span>
-                      )}
-                      {isToday && <span className="today-label">IDAG</span>}
-                    </button>
-                  );
-                })}
-              </div>
-              <div className="calendar-legend">
-                <span><i className="legend-dot" /> Någon fixar fika</span>
-                <span>Klicka på en dag för att vara med <b>↗</b></span>
-              </div>
+              ))}
+              {!leaderboard.length && <p className="empty-hint">Tacka någon genom att bjuda på fika – topplistan börjar efter första fikadagen.</p>}
+              <button className="text-button leaderboard-link" onClick={() => setActiveView("leaderboard")}>Hela listan <span>→</span></button>
             </section>
-
-            <aside className="sidebar">
-              <section className="mini-leaderboard panel">
-                <div className="mini-heading">
-                  <div><span className="eyebrow">TACK FÖR FIKAT</span><h3>Mest bjussiga</h3></div>
-                  <span className="trophy">🏆</span>
-                </div>
-                {leaderboard.slice(0, 3).map((person, index) => (
-                  <div className="leader-row" key={person.host}>
-                    <span className={`leader-rank rank-${index + 1}`}>{index + 1}</span>
-                    <span className="leader-name">{person.host}<small>{person.count} {person.count === 1 ? "fikabjudning" : "fikabjudningar"}</small></span>
-                    <span className="leader-score">☕ {person.count}</span>
-                  </div>
-                ))}
-                {!leaderboard.length && <p className="empty-hint">Tacka någon genom att bjuda på fika – topplistan börjar efter första fikadagen.</p>}
-                <button className="text-button leaderboard-link" onClick={() => setActiveView("leaderboard")}>Hela listan <span>→</span></button>
-              </section>
-            </aside>
           </div>
-          </>
+        ) : activeView === "calendar" ? (
+          <section className="calendar-panel panel">
+            <div className="section-heading">
+              <div>
+                <h2>Fikakalendern</h2>
+              </div>
+              <div className="month-switcher">
+                <button aria-label="Föregående månad" onClick={() => changeMonth(-1)}>‹</button>
+                <strong>{monthNames[visibleMonth.getMonth()]} {visibleMonth.getFullYear()}</strong>
+                <button aria-label="Nästa månad" onClick={() => changeMonth(1)}>›</button>
+              </div>
+            </div>
+            <div className="calendar-grid" role="grid" aria-label="Fikakalender">
+              {weekdayNames.map((day) => <div className="weekday" key={day}>{day}</div>)}
+              {monthDays.map((day) => {
+                const key = dateKey(day);
+                const dayFikas = fikas.filter((fika) => fika.date === key);
+                const isToday = key === todayKey;
+                return (
+                  <button
+                    className={[
+                      "calendar-day",
+                      sameMonth(day, visibleMonth) ? "" : "outside-month",
+                      isToday ? "today" : "",
+                      selectedDate === key ? "selected" : "",
+                    ].filter(Boolean).join(" ")}
+                    key={key}
+                    onClick={() => openDay(key)}
+                    aria-label={`${formatShortDate(key)}${dayFikas.length ? `, ${dayFikas.length} fika${dayFikas.length > 1 ? "n" : ""}` : ""}`}
+                  >
+                    <span className="day-number">{day.getDate()}</span>
+                    {dayFikas.length > 0 && (
+                      <span className="day-events">
+                        {dayFikas.slice(0, 2).map((fika) => (
+                          <span className="day-event" key={fika.id}>
+                            <span className="event-dot" /> {fika.host}
+                          </span>
+                        ))}
+                        {dayFikas.length > 2 && <span className="more-events">+{dayFikas.length - 2} till</span>}
+                      </span>
+                    )}
+                    {isToday && <span className="today-label">IDAG</span>}
+                  </button>
+                );
+              })}
+            </div>
+            <div className="calendar-legend">
+              <span><i className="legend-dot" /> Någon fixar fika</span>
+              <span>Klicka på en dag för att vara med <b>↗</b></span>
+            </div>
+          </section>
         ) : (
           <section className="leaderboard-page panel">
             <div className="leaderboard-intro">
@@ -379,7 +405,22 @@ function App() {
                       <span className="avatar">{fika.host.slice(0, 1).toUpperCase()}</span>
                       <span><strong>{fika.host}</strong><small>{fika.treat}</small></span>
                     </div>
-                    {selectedDate > todayKey && <span className="coming-soon">På gång ✦</span>}
+                    <div className="signup-actions">
+                      {selectedDate > todayKey && <span className="coming-soon">På gång ✦</span>}
+                      <button
+                        className="delete-fika"
+                        type="button"
+                        aria-label={`Ta bort fika för ${fika.host}`}
+                        title="Ta bort fika"
+                        disabled={pendingFikaIds.has(fika.id)}
+                        aria-busy={pendingFikaIds.has(fika.id)}
+                        onClick={() => void removeFika(fika)}
+                      >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <path d="M3 6h18M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M5 6l1 14a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1l1-14M10 10v7M14 10v7" />
+                        </svg>
+                      </button>
+                    </div>
                   </article>
                 ))}
               </div>

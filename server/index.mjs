@@ -66,6 +66,11 @@ app.post("/api/fikas", (req, res) => {
   res.status(201).json(fika);
 });
 
+app.delete("/api/fikas/:id", (req, res) => {
+  db.prepare("DELETE FROM fikas WHERE id = ?").run(req.params.id);
+  res.json({ id: req.params.id });
+});
+
 app.use(express.static(distPath, { etag: true, maxAge: "1h" }));
 app.use((req, res, next) => {
   if (req.method === "GET" && !req.path.startsWith("/api/")) {
