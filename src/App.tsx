@@ -114,6 +114,7 @@ function App() {
   const [saveError, setSaveError] = useState(initialData.error);
   const [apiMessage, setApiMessage] = useState("");
   const [pendingFikaIds, setPendingFikaIds] = useState<Set<string>>(() => new Set());
+  const [additionalFikaCount, setAdditionalFikaCount] = useState(0);
   const todayKey = dateKey(new Date());
 
   useEffect(() => {
@@ -150,9 +151,19 @@ function App() {
     [fikas, todayKey],
   );
   const todayFikas = upcoming.filter((fika) => fika.date === todayKey);
-  const nextFikaDate = upcoming.find((fika) => fika.date > todayKey)?.date;
-  const nextFikas = upcoming.filter((fika) => fika.date === nextFikaDate);
+  const futureFikaGroups = useMemo(() => {
+    const groups = new Map<string, Fika[]>();
+    upcoming.filter((fika) => fika.date > todayKey).forEach((fika) => {
+      const group = groups.get(fika.date) ?? [];
+      group.push(fika);
+      groups.set(fika.date, group);
+    });
+    return [...groups.values()];
+  }, [upcoming, todayKey]);
+  const nextFikas = futureFikaGroups[0] ?? [];
   const featuredFikas = todayFikas.length ? todayFikas : nextFikas;
+  const followingFikaGroups = futureFikaGroups.slice(todayFikas.length ? 0 : 1, 1 + additionalFikaCount);
+  const hasMoreFikas = futureFikaGroups.length > 1 + additionalFikaCount;
 
   const leaderboard = useMemo(() => {
     const hostedCount = new Map<string, { host: string; count: number }>();
@@ -318,11 +329,22 @@ function App() {
                   <div className="next-host">Välj en dag i kalendern och bli fikasuperhjälte.</div>
                 </>
               )}
-              {todayFikas.length > 0 && (
+              {followingFikaGroups.map((group, index) => (
+                <section className="following-fika" key={group[0].date} aria-labelledby={`following-fika-${group[0].date}`}>
+                  <h3 id={`following-fika-${group[0].date}`}>{todayFikas.length && index === 0 ? "Nästa fika" : "Kommande fika"}</h3>
+                  <FikaSummary fikas={group} />
+                </section>
+              ))}
+              {todayFikas.length > 0 && !nextFikas.length && (
                 <section className="following-fika" aria-labelledby="following-fika-title">
                   <h3 id="following-fika-title">Nästa fika</h3>
-                  {nextFikas.length ? <FikaSummary fikas={nextFikas} /> : <p className="next-host">Inget mer fika är bokat än.</p>}
+                  <p className="next-host">Inget mer fika är bokat än.</p>
                 </section>
+              )}
+              {hasMoreFikas && (
+                <button className="text-button show-next-fika" onClick={() => setAdditionalFikaCount((current) => current + 1)}>
+                  Visa nästa <span aria-hidden="true">↓</span>
+                </button>
               )}
               {!featuredFikas.length && <button className="text-button" onClick={() => setActiveView("calendar")}>Boka första fikat <span>→</span></button>}
               <span className="card-cookie" aria-hidden="true">🍪</span>

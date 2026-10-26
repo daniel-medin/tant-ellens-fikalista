@@ -99,11 +99,14 @@ h1, h2, h3, p { margin-top: 0; }
 .following-fika .avatar, .upcoming-fika-card .avatar { width: 22px; height: 22px; flex-basis: 22px; font-size: 11px; }
 .next-fika-card.upcoming-fika-card { min-height: 0; padding: 20px 24px; gap: 8px; background: #e8eee8; color: #3f5548; }
 .upcoming-fika-card .tiny-star { color: #8d682d; }
-.upcoming-fika-card .text-button { color: #425c49; }
+.next-fika-card.upcoming-fika-card .text-button { color: #425c49; }
 .upcoming-fika-card .card-cookie { font-size: 40px; }
 .avatar, .leader-avatar { display: inline-grid; place-items: center; width: 32px; height: 32px; flex: 0 0 32px; border-radius: 50%; color: #354f43; background: #f4d08b; font-size: 15px; font-weight: 700; }
 .text-button { min-height: 36px; padding: 4px 0; border: 0; background: transparent; color: inherit; font-size: 15px; font-weight: 700; cursor: pointer; }
 .next-fika-card .text-button { position: relative; z-index: 1; margin-top: auto; color: #ffcf7e; white-space: nowrap; }
+.next-fika-card .show-next-fika { align-self: stretch; min-height: 40px; margin-top: 0; border: 1px solid #ffffff45; border-radius: 6px; }
+.next-fika-card .show-next-fika:hover { background: #ffffff0c; }
+.next-fika-card.upcoming-fika-card .show-next-fika { border-color: #b9c9b9; }
 .text-button span { margin-left: 5px; }
 .card-cookie { position: absolute; right: 25px; bottom: 20px; font-size: 80px; opacity: .12; transform: rotate(-20deg); }
 .mini-leaderboard { min-width: 0; padding: 22px; }
