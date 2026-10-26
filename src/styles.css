@@ -51,33 +51,34 @@ h1, h2, h3, p { margin-top: 0; }
 .main-content { max-width: 1120px; margin: 24px auto 0; padding: 0 30px; }
 .view-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 22px; min-height: 42px; }
 .view-heading h1 { margin: 0; font: 600 30px/1.2 var(--serif); letter-spacing: -.4px; }
+.view-description { margin: 12px 0 4px; color: #66756b; font-size: 16px; line-height: 1.5; }
 .book-fika-button { min-height: 40px; padding: 0 14px; border: 1px solid #c8cec5; color: var(--green); background: var(--paper); font-size: 15px; white-space: nowrap; }
 .book-fika-button:hover { background: var(--green-soft); }
 .book-fika-button span { font-size: 20px; }
 .overview-grid { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(290px, .9fr); gap: 25px; align-items: start; }
 .panel { border: 1px solid #eee9de; border-radius: 7px; background: var(--paper); box-shadow: 0 7px 24px #37391b08; }
-.calendar-panel { padding: 24px 26px 15px; }
-.section-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 20px; }
-.section-heading h2, .leaderboard-intro h2 { margin: 5px 0 0; font: 600 30px var(--serif); letter-spacing: -.4px; }
-.month-switcher { display: flex; align-items: center; gap: 12px; }
-.month-switcher strong { min-width: 145px; text-align: center; color: #42564c; font-size: 16px; text-transform: capitalize; }
-.month-switcher button { width: 40px; height: 40px; border: 1px solid var(--line); border-radius: 50%; background: white; font-size: 27px; line-height: 1; cursor: pointer; }
-.calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
-.weekday { padding: 0 0 10px; color: #526158; text-align: center; font-size: 14px; font-weight: 700; }
-.calendar-day { min-width: 0; min-height: 94px; padding: 9px 7px 6px; display: flex; flex-direction: column; align-items: flex-start; position: relative; border: 1px solid #e1e3d9; border-right: 0; border-bottom: 0; background: #fffefa; text-align: left; cursor: pointer; }
-.calendar-day:nth-child(7n) { border-right: 1px solid #f1eee6; }
-.calendar-day:nth-last-child(-n+7) { border-bottom: 1px solid #f1eee6; }
-.calendar-day:hover { background: #f9f4e7; }
-.calendar-day.outside-month { background: #fbfaf6; color: #707970; }
-.calendar-day.today { background: #f2f5ec; }
-.calendar-day.selected { box-shadow: inset 0 0 0 2px #e8a763; z-index: 1; }
-.day-number { font-size: 17px; font-weight: 700; }
-.today .day-number { display: grid; place-items: center; width: 28px; height: 28px; margin: -4px 0 0 -3px; border-radius: 50%; background: var(--green); color: white; }
-.day-events { display: flex; flex-direction: column; gap: 2px; width: 100%; margin-top: 4px; overflow: hidden; }
-.day-event { max-width: 100%; overflow: hidden; color: #425c49; font-size: 13px; white-space: nowrap; text-overflow: ellipsis; }
+.calendar-panel { padding: 24px; border: 1px solid #d5ddd3; border-radius: 16px; background: #fffefa; box-shadow: none; }
+.calendar-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 22px; }
+.calendar-toolbar h2 { margin: 0; font-size: 21px; line-height: 1.3; font-weight: 700; text-transform: capitalize; }
+.leaderboard-intro h2 { margin: 5px 0 0; font: 600 30px var(--serif); letter-spacing: -.4px; }
+.month-switcher { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.month-switcher button { display: grid; place-items: center; width: 40px; height: 40px; padding: 0; border: 1px solid #d5ddd3; border-radius: 11px; background: transparent; color: #5c6e62; cursor: pointer; }
+.month-switcher button:hover { color: var(--green); background: var(--green-soft); }
+.calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.weekday { padding: 4px 0 8px; color: #66756b; text-align: center; font-size: 13px; font-weight: 700; }
+.calendar-day { min-width: 0; min-height: 100px; padding: 10px; display: flex; flex-direction: column; align-items: flex-start; position: relative; border: 1px solid #d5ddd3; border-radius: 10px; background: #fff; text-align: left; cursor: pointer; transition: background .16s, border-color .16s; }
+.calendar-day:hover { background: #f5f5ec; border-color: #9caf9f; }
+.calendar-day.outside-month { background: #f1f4ef; color: #859086; }
+.calendar-day.today { background: #fff4dc; border-color: #c28a40; box-shadow: inset 0 0 0 1px #c28a40; }
+.calendar-day.selected { background: #fff4dc; outline: 2px solid #a36b2e; outline-offset: 2px; z-index: 1; }
+.day-number { font-size: 16px; font-weight: 400; }
+.today .day-number { color: #985b24; font-weight: 700; }
+.day-events { display: flex; flex-direction: column; gap: 3px; width: 100%; margin-top: auto; padding-top: 8px; overflow: hidden; }
+.day-event { display: flex; align-items: center; gap: 5px; min-width: 0; color: #425c49; font-size: 13px; }
+.event-host { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .event-dot, .legend-dot { display: inline-block; width: 8px; height: 8px; margin: 0 3px 1px 0; border-radius: 50%; background: #d66c4d; }
-.more-events { padding-left: 8px; color: #526158; font-size: 12px; }
-.today-label { position: absolute; top: 10px; right: 6px; color: #b84732; font-size: 12px; font-weight: 700; letter-spacing: .3px; }
+.event-dot { flex-shrink: 0; margin: 0; }
+.more-events { color: #526158; font-size: 12px; }
 .calendar-legend { display: flex; justify-content: space-between; gap: 8px; padding: 15px 0 0; color: #526158; font-size: 14px; }
 .calendar-legend b { color: var(--orange); font-size: 13px; }
 .next-fika-card { min-width: 0; min-height: 320px; padding: 28px 32px; display: flex; flex-direction: column; align-items: flex-start; gap: 16px; background: #244b40; color: #fff9ea; border-radius: 7px; position: relative; overflow: hidden; }
@@ -158,7 +159,6 @@ h1, h2, h3, p { margin-top: 0; }
   .topbar { padding: 0 25px; }
   .campus-tag { display: none; }
   .overview-grid { grid-template-columns: minmax(0, 1.3fr) minmax(260px, 1fr); gap: 20px; }
-  .calendar-panel { padding: 20px 17px 13px; }
 }
 @media (max-width: 700px) {
   .topbar { min-height: 120px; padding: 10px 18px 0; flex-wrap: wrap; align-content: center; gap: 4px; }
@@ -172,12 +172,14 @@ h1, h2, h3, p { margin-top: 0; }
   .view-heading { margin-bottom: 18px; }
   .view-heading h1 { font-size: 27px; }
   .overview-grid { grid-template-columns: minmax(0, 1fr); gap: 18px; }
-  .calendar-panel { padding: 22px 16px 18px; }
-  .section-heading { align-items: flex-start; flex-wrap: wrap; gap: 14px; }
-  .month-switcher { width: 100%; justify-content: space-between; }
-  .calendar-day { min-height: 82px; padding-left: 5px; }
-  .day-event { font-size: 12px; }
-  .calendar-legend { flex-wrap: wrap; font-size: 14px; }
+  .calendar-panel { padding: 20px 16px 16px; }
+  .calendar-toolbar { margin-bottom: 20px; }
+  .calendar-toolbar h2 { font-size: 19px; }
+  .calendar-day { min-height: 70px; padding: 8px 6px; }
+  .day-events { flex-direction: row; flex-wrap: wrap; gap: 4px; }
+  .event-host { display: none; }
+  .more-events { font-size: 10px; }
+  .calendar-legend { flex-wrap: wrap; font-size: 13px; line-height: 1.5; }
   .next-fika-card { min-height: 280px; padding: 24px; gap: 14px; }
   .next-treat { font-size: 25px; }
   .leaderboard-page { padding: 30px 20px; }
@@ -191,13 +193,14 @@ h1, h2, h3, p { margin-top: 0; }
   .nav-link { font-size: 16px; padding: 8px 0; }
   .nav-link.active::after { bottom: -3px; }
   .button-primary { padding: 0 18px; }
-  .calendar-panel { padding: 19px 9px 15px; }
-  .weekday { font-size: 12px; }
-  .calendar-day { min-height: 72px; padding: 5px 3px; }
+  .calendar-panel { padding: 18px 12px 14px; }
+  .calendar-toolbar { gap: 6px; }
+  .calendar-toolbar h2 { font-size: 17px; }
+  .month-switcher { gap: 6px; }
+  .month-switcher button { width: 36px; height: 38px; }
+  .weekday { font-size: 11px; }
+  .calendar-day { min-height: 64px; padding: 8px 5px; }
   .day-number { font-size: 15px; }
-  .today .day-number { width: 25px; height: 25px; }
-  .today-label { top: auto; right: 3px; bottom: 3px; font-size: 12px; }
-  .day-event { font-size: 12px; }
   .page-footer { flex-wrap: wrap; }
   .day-modal { padding: 32px 20px 24px; }
   .day-modal h2 { padding-right: 28px; }

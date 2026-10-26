@@ -154,7 +154,9 @@ function App() {
     const first = new Date(visibleMonth.getFullYear(), visibleMonth.getMonth(), 1);
     const startOffset = (first.getDay() + 6) % 7;
     const gridStart = addDays(first, -startOffset);
-    return Array.from({ length: 42 }, (_, index) => addDays(gridStart, index));
+    const daysInMonth = new Date(visibleMonth.getFullYear(), visibleMonth.getMonth() + 1, 0).getDate();
+    const cellCount = Math.ceil((startOffset + daysInMonth) / 7) * 7;
+    return Array.from({ length: cellCount }, (_, index) => addDays(gridStart, index));
   }, [visibleMonth]);
 
   const selectedFikas = selectedDate
@@ -262,7 +264,10 @@ function App() {
 
       <section className="main-content">
         <div className="view-heading">
-          <h1>{activeView === "overview" ? "Översikt" : activeView === "calendar" ? "Kalender" : "Topplista"}</h1>
+          <div>
+            <h1>{activeView === "overview" ? "Översikt" : activeView === "calendar" ? "Kalender" : "Topplista"}</h1>
+            {activeView === "calendar" && <p className="view-description">Välj en dag för att se eller boka fika.</p>}
+          </div>
           {activeView !== "calendar" && (
             <button className="button book-fika-button" onClick={() => setActiveView("calendar")}>
               <span aria-hidden="true">＋</span> Boka fika
@@ -307,15 +312,16 @@ function App() {
             </section>
           </div>
         ) : activeView === "calendar" ? (
-          <section className="calendar-panel panel">
-            <div className="section-heading">
-              <div>
-                <h2>Fikakalendern</h2>
-              </div>
+          <section className="calendar-panel panel" aria-labelledby="calendar-month">
+            <div className="calendar-toolbar">
+              <h2 id="calendar-month" aria-live="polite">{monthNames[visibleMonth.getMonth()]} {visibleMonth.getFullYear()}</h2>
               <div className="month-switcher">
-                <button aria-label="Föregående månad" onClick={() => changeMonth(-1)}>‹</button>
-                <strong>{monthNames[visibleMonth.getMonth()]} {visibleMonth.getFullYear()}</strong>
-                <button aria-label="Nästa månad" onClick={() => changeMonth(1)}>›</button>
+                <button aria-label="Föregående månad" onClick={() => changeMonth(-1)}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m14 6-6 6 6 6" /></svg>
+                </button>
+                <button aria-label="Nästa månad" onClick={() => changeMonth(1)}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m10 6 6 6-6 6" /></svg>
+                </button>
               </div>
             </div>
             <div className="calendar-grid" role="grid" aria-label="Fikakalender">
@@ -334,20 +340,20 @@ function App() {
                     ].filter(Boolean).join(" ")}
                     key={key}
                     onClick={() => openDay(key)}
-                    aria-label={`${formatShortDate(key)}${dayFikas.length ? `, ${dayFikas.length} fika${dayFikas.length > 1 ? "n" : ""}` : ""}`}
+                    aria-current={isToday ? "date" : undefined}
+                    aria-label={`${formatShortDate(key)}${dayFikas.length ? `, ${dayFikas.length} fika${dayFikas.length > 1 ? "n" : ""}: ${dayFikas.map((fika) => fika.host).join(", ")}` : ""}`}
                   >
                     <span className="day-number">{day.getDate()}</span>
                     {dayFikas.length > 0 && (
                       <span className="day-events">
                         {dayFikas.slice(0, 2).map((fika) => (
                           <span className="day-event" key={fika.id}>
-                            <span className="event-dot" /> {fika.host}
+                            <span className="event-dot" /><span className="event-host">{fika.host}</span>
                           </span>
                         ))}
                         {dayFikas.length > 2 && <span className="more-events">+{dayFikas.length - 2} till</span>}
                       </span>
                     )}
-                    {isToday && <span className="today-label">IDAG</span>}
                   </button>
                 );
               })}
