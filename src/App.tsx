@@ -363,13 +363,14 @@ function App() {
                 </>
               )}
               {followingFikaGroups.map((group, index) => (
-                <section className="following-fika" key={group[0].date} aria-label={`${todayFikas.length && index === 0 ? "Nästa fika" : "Kommande fika"}, ${formatShortDate(group[0].date)}`}>
+                <section className="following-fika" key={group[0].date} aria-labelledby={`following-fika-${group[0].date}`}>
+                  <h3 id={`following-fika-${group[0].date}`}>{todayFikas.length && index === 0 ? "Nästa fika:" : "Kommande fika:"}</h3>
                   <UpcomingFikaSummary fikas={group} />
                 </section>
               ))}
               {todayFikas.length > 0 && !nextFikas.length && (
                 <section className="following-fika" aria-labelledby="following-fika-title">
-                  <h3 id="following-fika-title">Nästa fika</h3>
+                  <h3 id="following-fika-title">Nästa fika:</h3>
                   <p className="next-host">Inget mer fika är bokat än.</p>
                 </section>
               )}
