@@ -4,6 +4,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import Database from "better-sqlite3";
 import express from "express";
+import allergenOptions from "./allergens.json" with { type: "json" };
 
 const appRoot = dirname(fileURLToPath(import.meta.url));
 const dataPath = process.env.DATABASE_PATH || join(appRoot, "..", "data", "fikalista.sqlite");
@@ -22,6 +23,10 @@ db.exec(`
   );
   DROP TABLE IF EXISTS ratings;
 `);
+if (!db.prepare("PRAGMA table_info(fikas)").all().some((column) => column.name === "allergens")) {
+  db.exec("ALTER TABLE fikas ADD COLUMN allergens TEXT NOT NULL DEFAULT '[]'");
+}
+const allergenIds = new Set(allergenOptions.map((allergen) => allergen.id));
 
 const app = express();
 const port = Number(process.env.PORT || 8080);
@@ -31,7 +36,7 @@ app.disable("x-powered-by");
 app.use(express.json({ limit: "4kb" }));
 
 const listFikas = db.prepare(`
-  SELECT id, date, host, treat
+  SELECT id, date, host, treat, allergens
   FROM fikas
   ORDER BY date, created_at
 `);
@@ -47,13 +52,17 @@ function validDate(value) {
 app.get("/api/health", (_req, res) => res.json({ status: "ok" }));
 
 app.get("/api/fikas", (req, res) => {
-  res.json(listFikas.all());
+  res.json(listFikas.all().map((fika) => ({ ...fika, allergens: JSON.parse(fika.allergens) })));
 });
 
 app.post("/api/fikas", (req, res) => {
-  const { date, host, treat } = req.body ?? {};
+  const { date, host, treat, allergens = [] } = req.body ?? {};
   if (!validDate(date) || !validText(host, 40) || (treat !== undefined && (typeof treat !== "string" || treat.length > 60))) {
     res.status(400).json({ error: "Kontrollera datum, namn och fikabeskrivning." });
+    return;
+  }
+  if (!Array.isArray(allergens) || allergens.length > allergenOptions.length || !allergens.every((id) => typeof id === "string" && allergenIds.has(id))) {
+    res.status(400).json({ error: "Välj allergener från listan." });
     return;
   }
   const fika = {
@@ -61,8 +70,9 @@ app.post("/api/fikas", (req, res) => {
     date,
     host: host.trim(),
     treat: treat?.trim() || "Hemligt fika",
+    allergens: [...new Set(allergens)],
   };
-  db.prepare("INSERT INTO fikas (id, date, host, treat) VALUES (@id, @date, @host, @treat)").run(fika);
+  db.prepare("INSERT INTO fikas (id, date, host, treat, allergens) VALUES (@id, @date, @host, @treat, @allergens)").run({ ...fika, allergens: JSON.stringify(fika.allergens) });
   res.status(201).json(fika);
 });
 

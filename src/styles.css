@@ -152,6 +152,7 @@ h1, h2, h3, p { margin-top: 0; }
 .day-modal h3 { margin: 22px 0 14px; font: 600 23px var(--serif); }
 .day-signups { display: flex; flex-direction: column; gap: 8px; }
 .signup-card { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 14px; background: #f6f4ed; border-radius: 5px; }
+.signup-content { display: grid; gap: 8px; min-width: 0; }
 .signup-details { display: flex; align-items: center; gap: 9px; min-width: 0; }
 .signup-details > span:last-child { display: flex; flex-direction: column; gap: 3px; min-width: 0; overflow-wrap: anywhere; }
 .signup-details strong { font-size: 17px; }
@@ -169,6 +170,23 @@ h1, h2, h3, p { margin-top: 0; }
 .signup-form input::placeholder { color: #66756b; }
 .signup-form input[aria-invalid="true"] { border-color: #a63f32; }
 .field-error { color: #a63f32; font-size: 14px; font-weight: 400; line-height: 1.4; }
+.allergen-notice { display: grid; gap: 5px; min-width: 0; }
+.allergen-caption { font-size: 11px; font-weight: 600; opacity: .85; }
+.allergen-badges { display: flex; flex-wrap: wrap; gap: 5px; margin: 0; padding: 0; list-style: none; }
+.allergen-badge { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; padding: 3px 7px; border-radius: 5px; background: #f6e6c7; color: #694a23; font-size: 11px; line-height: 1.4; overflow-wrap: anywhere; }
+.allergen-unknown { margin: 0; font-size: 11px; line-height: 1.4; opacity: .75; }
+.allergen-field { min-width: 0; margin: 0; padding: 0; border: 0; }
+.allergen-field legend { padding: 0; color: #3f5548; font-size: 16px; font-weight: 700; }
+.allergen-help { margin: 6px 0 8px; color: #66756b; font-size: 13px; line-height: 1.5; }
+.allergen-picker { border: 1px solid #c8cec5; border-radius: 5px; background: white; }
+.allergen-picker summary { padding: 13px 12px; color: #3f5548; font-size: 15px; font-weight: 600; cursor: pointer; }
+.allergen-picker summary > span { float: right; margin-left: 8px; color: #66756b; font-size: 12px; font-weight: 400; }
+.allergen-picker summary:focus-visible { outline: 3px solid #e99062; outline-offset: 3px; }
+.allergen-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; max-height: 250px; overflow-y: auto; padding: 8px; border-top: 1px solid var(--line); }
+.signup-form .allergen-option { display: flex; align-items: center; gap: 6px; min-width: 0; min-height: 40px; padding: 6px; border-radius: 4px; font-size: 12px; font-weight: 400; cursor: pointer; overflow-wrap: anywhere; }
+.allergen-option:hover, .allergen-option:has(input:checked) { background: #edf2e9; }
+.signup-form .allergen-option input { width: 16px; height: 16px; margin: 0; padding: 0; flex-shrink: 0; accent-color: var(--green); }
+.allergen-field > .allergen-notice { margin-top: 10px; }
 .optional { color: #9aa198; font-weight: 400; }
 .modal-submit { width: 100%; margin-top: 3px; }
 .save-warning { position: fixed; z-index: 8; right: 20px; bottom: 20px; padding: 14px 18px; border-radius: 4px; color: white; background: #b44e42; box-shadow: 0 4px 20px #0002; font-size: 16px; }
@@ -204,6 +222,7 @@ h1, h2, h3, p { margin-top: 0; }
   .full-leader-row { gap: 10px; padding: 16px 0; }
 }
 @media (max-width: 410px) {
+  .allergen-options { grid-template-columns: minmax(0, 1fr); }
   .topbar { min-height: 126px; padding: 10px 16px 0; flex-wrap: wrap; align-content: center; gap: 4px; }
   .brand { width: 100%; gap: 8px; }
   .brand-mark { width: 35px; height: 49px; }

@@ -1,15 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
+import allergenOptions from "../server/allergens.json";
 
 type Fika = {
   id: string;
   date: string;
   host: string;
   treat: string;
+  allergens?: string[];
 };
 
 type View = "overview" | "calendar" | "leaderboard";
 
 const storageKey = "tant-ellens-fikalista-v2";
+const allergenIds = new Set(allergenOptions.map((allergen) => allergen.id));
 const weekdayNames = ["Mån", "Tis", "Ons", "Tor", "Fre", "Lör", "Sön"];
 const monthNames = [
   "januari", "februari", "mars", "april", "maj", "juni",
@@ -53,7 +56,8 @@ function isFika(value: unknown): value is Fika {
     "id" in value && typeof value.id === "string" &&
     "date" in value && typeof value.date === "string" &&
     "host" in value && typeof value.host === "string" &&
-    "treat" in value && typeof value.treat === "string";
+    "treat" in value && typeof value.treat === "string" &&
+    (!("allergens" in value) || (Array.isArray(value.allergens) && value.allergens.every((id) => typeof id === "string" && allergenIds.has(id))));
 }
 
 async function apiRequest(url: string, init?: RequestInit): Promise<unknown> {
@@ -81,6 +85,21 @@ function sameMonth(a: Date, b: Date): boolean {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth();
 }
 
+function AllergenBadges({ allergens = [] }: { allergens?: string[] }) {
+  const selected = allergenOptions.filter((allergen) => allergens.includes(allergen.id));
+  if (!selected.length) return <p className="allergen-unknown">Allergener ej angivna</p>;
+  return (
+    <div className="allergen-notice">
+      <span className="allergen-caption">Innehåller</span>
+      <ul className="allergen-badges" aria-label="Angivna allergener">
+        {selected.map((allergen) => (
+          <li className="allergen-badge" key={allergen.id}><span aria-hidden="true">{allergen.icon}</span>{allergen.label}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 function FikaSummary({ fikas }: { fikas: Fika[] }) {
   return (
     <>
@@ -89,6 +108,7 @@ function FikaSummary({ fikas }: { fikas: Fika[] }) {
         <div className="fika-summary-entry" key={fika.id}>
           <p className="next-treat">{fika.treat === "Hemligt fika" ? "Något gott är på gång…" : fika.treat}</p>
           <div className="next-host"><span className="avatar">{fika.host.slice(0, 1).toUpperCase()}</span> {fika.host} fixar fikat</div>
+          <AllergenBadges allergens={fika.allergens} />
         </div>
       ))}
     </>
@@ -110,6 +130,7 @@ function App() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [hostName, setHostName] = useState("");
   const [treatName, setTreatName] = useState("");
+  const [selectedAllergens, setSelectedAllergens] = useState<string[]>([]);
   const [formErrors, setFormErrors] = useState<{ host?: string; treat?: string }>({});
   const [saveError, setSaveError] = useState(initialData.error);
   const [apiMessage, setApiMessage] = useState("");
@@ -198,6 +219,7 @@ function App() {
     setHostName("");
     setTreatName("");
     setFormErrors({});
+    setSelectedAllergens([]);
   }
 
   async function addFika(event: React.FormEvent<HTMLFormElement>) {
@@ -219,17 +241,19 @@ function App() {
       date: selectedDate,
       host: hostName.trim(),
       treat: treatName.trim() || "Hemligt fika",
+      allergens: selectedAllergens,
     };
     setFikas((current) => [...current, newFika]);
     setPendingFikaIds((current) => new Set(current).add(localId));
     setHostName("");
     setTreatName("");
+    setSelectedAllergens([]);
     setSelectedDate(null);
     try {
       const created = await apiRequest("/api/fikas", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ date: newFika.date, host: newFika.host, treat: newFika.treat }),
+        body: JSON.stringify({ date: newFika.date, host: newFika.host, treat: newFika.treat, allergens: newFika.allergens }),
       });
       if (!isFika(created)) throw new Error("Servern skickade tillbaka en ogiltig fika.");
       setFikas((current) => [...current.filter((fika) => fika.id !== localId), created]);
@@ -461,9 +485,12 @@ function App() {
               <div className="day-signups">
                 {selectedFikas.map((fika) => (
                   <article className="signup-card" key={fika.id}>
-                    <div className="signup-details">
-                      <span className="avatar">{fika.host.slice(0, 1).toUpperCase()}</span>
-                      <span><strong>{fika.host}</strong><small>{fika.treat}</small></span>
+                    <div className="signup-content">
+                      <div className="signup-details">
+                        <span className="avatar">{fika.host.slice(0, 1).toUpperCase()}</span>
+                        <span><strong>{fika.host}</strong><small>{fika.treat}</small></span>
+                      </div>
+                      <AllergenBadges allergens={fika.allergens} />
                     </div>
                     <div className="signup-actions">
                       {selectedDate > todayKey && <span className="coming-soon">På gång ✦</span>}
@@ -506,6 +533,25 @@ function App() {
                   }} placeholder="Hemligt fika funkar också…" maxLength={60} aria-invalid={!!formErrors.treat} aria-describedby={formErrors.treat ? "treat-error" : undefined} />
                   {formErrors.treat && <span className="field-error" id="treat-error" role="alert">{formErrors.treat}</span>}
                 </label>
+                <fieldset className="allergen-field">
+                  <legend>Allergener <span className="optional">(valfritt)</span></legend>
+                  <p className="allergen-help" id="allergen-help">Markera det fikat innehåller.</p>
+                  <details className="allergen-picker">
+                    <summary>Välj allergener <span>{selectedAllergens.length ? `${selectedAllergens.length} valda` : "30 val"}</span></summary>
+                    <div className="allergen-options" role="group" aria-label="Allergener i fikat" aria-describedby="allergen-help">
+                      {allergenOptions.map((allergen) => (
+                        <label className="allergen-option" key={allergen.id}>
+                          <input type="checkbox" name="allergens" value={allergen.id} checked={selectedAllergens.includes(allergen.id)} onChange={(event) => {
+                            const checked = event.currentTarget.checked;
+                            setSelectedAllergens((current) => checked ? [...current, allergen.id] : current.filter((id) => id !== allergen.id));
+                          }} />
+                          <span aria-hidden="true">{allergen.icon}</span><span>{allergen.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </details>
+                  {selectedAllergens.length > 0 && <AllergenBadges allergens={selectedAllergens} />}
+                </fieldset>
                 <button className="button button-primary modal-submit" type="submit">Jag fixar fika <span>✦</span></button>
               </form>
             )}
