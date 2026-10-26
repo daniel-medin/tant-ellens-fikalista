@@ -228,7 +228,7 @@ function App() {
       <section className="hero">
         <div className="hero-copy">
           <span className="eyebrow"><span>☕</span> CHALMERS FIKAKLUBB</span>
-          <h1>En kopp kaffe.<br /><em>En riktigt bra</em> fika.</h1>
+          <h1>En riktigt bra fika</h1>
           <p>Boka en dag, bjud på något gott och hjälp oss hitta Chalmers godaste fika.</p>
           <div className="hero-actions">
             <button className="button button-primary" onClick={() => openDay(todayKey)}>
@@ -238,17 +238,7 @@ function App() {
               Se topplistan <span>↗</span>
             </button>
           </div>
-          <div className="hero-note"><span className="note-icon">✦</span> Bra fika. Bra folk. Bättre måndagar.</div>
         </div>
-        <div className="hero-art" aria-hidden="true">
-          <span className="art-sun" />
-          <span className="art-sprinkle sprinkle-one">✦</span>
-          <span className="art-sprinkle sprinkle-two">✳</span>
-          <span className="art-sprinkle sprinkle-three">•</span>
-          <img className="ellen-yarn" src="/ellen-yarn.svg" alt="Ellen som en liten garnfigur med långt brunt hår och stickad tröja" />
-          <span className="art-caption">BAKAD MED<br />KÄRLEK ♡</span>
-        </div>
-        <div className="hero-bottom-sprinkles" aria-hidden="true">✦　•　✳　•　✦　•　✳</div>
       </section>
 
       <section className="main-content">
