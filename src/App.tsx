@@ -203,10 +203,7 @@ function App() {
       <header className="topbar">
         <a className="brand" href="#" onClick={() => setActiveView("calendar")}>
           <img className="brand-mark" src="/ellen-yarn.svg" alt="Ellen som garnfigur" />
-          <span className="brand-copy">
-            <span className="brand-name">Tant Ellens</span>
-            <span className="brand-subtitle"><img className="chalmers-mark" src="/chalmers-mark.svg" alt="Chalmers logotyp" /> FIKALISTA · CHALMERS</span>
-          </span>
+          <span className="brand-name">Tant Ellens</span>
         </a>
         <nav className="main-nav" aria-label="Huvudmeny">
           <button
@@ -229,7 +226,7 @@ function App() {
         <div className="hero-copy">
           <span className="eyebrow"><span>☕</span> CHALMERS FIKAKLUBB</span>
           <h1>En riktigt bra fika</h1>
-          <p>Boka en dag, bjud på något gott och hjälp oss hitta Chalmers godaste fika.</p>
+          <p>Boka en dag, bjut på nått gött.</p>
           <div className="hero-actions">
             <button className="button button-primary" onClick={() => openDay(todayKey)}>
               <span>＋</span> Boka fika
@@ -244,7 +241,7 @@ function App() {
       <section className="main-content">
         {activeView === "calendar" ? (
           <>
-            <section className="next-fika-card">
+            <section className={upcoming.length ? "next-fika-card" : "next-fika-card next-fika-empty"}>
               <div className="card-topline"><span>NÄSTA FIKA</span><span className="tiny-star">✳</span></div>
               {upcoming.length ? (
                 <>
@@ -254,7 +251,6 @@ function App() {
                 </>
               ) : (
                 <>
-                  <p className="next-date">Kalendern är tom</p>
                   <h3>Dags att rädda fikapausen!</h3>
                   <div className="next-host">Klicka på en dag och bli fikasuperhjälte.</div>
                 </>
@@ -268,7 +264,6 @@ function App() {
             <section className="calendar-panel panel">
               <div className="section-heading">
                 <div>
-                  <span className="eyebrow">PLANERA NÅGOT GOTT</span>
                   <h2>Fikakalendern</h2>
                 </div>
                 <div className="month-switcher">

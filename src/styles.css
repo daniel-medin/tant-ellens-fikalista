@@ -32,10 +32,7 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid 
 }
 .brand { display: flex; align-items: center; gap: 11px; color: inherit; text-decoration: none; }
 .brand-mark { width: 48px; height: 67px; object-fit: contain; }
-.brand-copy { display: flex; flex-direction: column; line-height: 1; }
 .brand-name { font: 700 24px var(--serif); letter-spacing: -.4px; }
-.brand-subtitle { display: flex; align-items: center; gap: 5px; margin-top: 7px; font-size: 12px; font-weight: 700; letter-spacing: .7px; color: #526158; }
-.chalmers-mark { width: 16px; height: 16px; }
 .main-nav { display: flex; align-self: stretch; align-items: center; gap: 34px; }
 .nav-link { border: 0; padding: 12px 0; background: transparent; color: #526158; font-size: 17px; cursor: pointer; }
 .nav-link.active { color: var(--green); font-weight: 700; position: relative; }
@@ -92,6 +89,10 @@ h1 { margin: 18px 0 16px; font: 600 clamp(36px, 4.5vw, 56px)/1.15 var(--serif); 
 .calendar-legend b { color: var(--orange); font-size: 13px; }
 .sidebar { display: flex; flex-direction: column; gap: 15px; }
 .next-fika-card { min-height: 160px; margin-bottom: 22px; padding: 22px 26px; display: grid; grid-template-columns: minmax(160px, .7fr) minmax(190px, 1.1fr) minmax(150px, 1fr) auto; grid-template-rows: 22px 1fr; align-items: center; column-gap: 18px; background: #244b40; color: #fff9ea; border-radius: 7px; position: relative; overflow: hidden; }
+.next-fika-empty { grid-template-columns: minmax(220px, 1.1fr) minmax(230px, 1.5fr) auto; }
+.next-fika-empty h3 { grid-column: 1; }
+.next-fika-empty .next-host { grid-column: 2; }
+.next-fika-empty .text-button { grid-column: 3; }
 .card-topline { grid-column: 1 / -1; position: relative; z-index: 1; display: flex; justify-content: space-between; color: #e1e9d9; font-size: 13px; font-weight: 700; letter-spacing: 1.1px; }
 .tiny-star { color: #f5c26a; font-size: 15px; }
 .next-date { position: relative; z-index: 1; margin: 0; color: #f4deb2; font-size: 16px; text-transform: capitalize; }
@@ -171,7 +172,6 @@ h1 { margin: 18px 0 16px; font: 600 clamp(36px, 4.5vw, 56px)/1.15 var(--serif); 
   .topbar { min-height: 82px; padding: 0 18px; }
   .brand-mark { width: 38px; height: 54px; }
   .brand-name { font-size: 20px; }
-  .brand-subtitle { font-size: 12px; letter-spacing: .4px; }
   .main-nav { gap: 18px; }
   .nav-link { font-size: 16px; }
   .nav-link.active::after { bottom: -14px; }
@@ -193,6 +193,10 @@ h1 { margin: 18px 0 16px; font: 600 clamp(36px, 4.5vw, 56px)/1.15 var(--serif); 
   .next-fika-card h3 { grid-column: 2; grid-row: 2; font-size: 23px; }
   .next-fika-card .next-host { grid-column: 1; grid-row: 3; }
   .next-fika-card .text-button { grid-column: 2; grid-row: 3; text-align: right; }
+  .next-fika-empty { grid-template-columns: 1fr; grid-template-rows: 22px auto auto auto; }
+  .next-fika-empty h3,
+  .next-fika-empty .next-host,
+  .next-fika-empty .text-button { grid-column: 1; grid-row: auto; text-align: left; }
   .next-fika-card .card-cookie { display: none; }
   .mini-leaderboard { min-width: 0; padding: 22px; }
   .leaderboard-page { padding: 30px 20px; }
