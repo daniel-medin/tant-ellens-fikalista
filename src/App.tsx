@@ -344,10 +344,10 @@ function App() {
         {activeView === "overview" ? (
           <div className="overview-grid">
             <div className="fika-overview">
-              <section className={todayFikas.length ? "next-fika-card" : "next-fika-card upcoming-fika-card"} aria-labelledby="next-fika-title">
+              <section className="next-fika-card" aria-labelledby="next-fika-title">
                 <div className="card-topline"><h2 id="next-fika-title">{todayFikas.length ? "Fika idag" : "Nästa fika"}</h2><span className="tiny-star" aria-hidden="true">✳</span></div>
                 {featuredFikas.length ? (
-                  todayFikas.length ? <FikaSummary fikas={featuredFikas} /> : <UpcomingFikaSummary fikas={featuredFikas} />
+                  <FikaSummary fikas={featuredFikas} />
                 ) : (
                   <>
                     <p className="next-treat">Dags att rädda fikapausen!</p>
